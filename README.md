@@ -1,4 +1,4 @@
-# Six Making - Grupo X
+# Six Making - Grupo 5
 
 ## Topic and Group
 - up202108802 - Carolina Teixeira Lopes Couto Viana
@@ -31,3 +31,8 @@ If you only move a part of a tower, the disks move as the original tower, before
 You cannot undo the opponents move.
 
 The game ends when the first tower consisting of six or more disks (King) is built. The player who has its color on top is the winner. There are no draws in this game.
+
+---
+
+### Official Rules
+  [Six MaKing](http://www.boardspace.net/sixmaking/english/Six-MaKING-rules-Eng-Ger-Fra-Ro-Hu.pdf)
