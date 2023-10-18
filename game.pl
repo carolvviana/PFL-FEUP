@@ -60,18 +60,14 @@ valid_pawn_coords(Board, X1, Y1, X2, Y2) :-
 % moves any number of squares orthogonally on the first tower in its path.
 % valid_rook_coords(+Board, +X1, +Y1, +Direction)
 valid_rook_coords(Board, X1, Y1, X2, Y2, Dir):-
-    % get Y size of board
-    length(Board, YSize),
-    % get X size of board
-    nth0(0, Board, Row),
-    length(Row, XSize),
+    % get size of board
+    length(Board, Size),
 
     % check if coords are valid
     X2 >= 0,
-    X2 < XSize,
-    Y2 >= 0,
-    Y2 < YSize,
-    %TODO:
+    X2 < Size,
+    Y2 > 0,
+    Y2 < Size.
 
 valid_rook_coords(Board, X1, Y1, X2, Y2, down) :-
     X2 = X1,
