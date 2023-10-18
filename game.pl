@@ -26,13 +26,18 @@ replace_row(Row, X, Piece, NewRow) :-
     nth0(X, Row, _, TempRow),
     nth0(X, NewRow, Piece, TempRow).
 
+%_______________________________________________________________________________________
+
+
+% get all possible coords for a pawn, where not empty
+% valid_pawn_coords(+Board, +X1, +Y1, ?X2, ?Y2)
 valid_pawn_coords(Board, X1, Y1, X2, Y2) :-
     X2 = X1,
     Y2 is (Y1 + 1),
     get_piece(Board, X2, Y2, Piece),
     Piece \= empty.
 
-valid_pawn_coords(Board,X1, Y1, X2, Y2) :-    
+valid_pawn_coords(Board, X1, Y1, X2, Y2) :-    
     X2 = X1,
     Y2 is (Y1 - 1),
     get_piece(Board, X2, Y2, Piece),
@@ -49,16 +54,81 @@ valid_pawn_coords(Board, X1, Y1, X2, Y2) :-
     Y2 = Y1,
     get_piece(Board, X2, Y2, Piece),
     Piece \= empty.
+%_______________________________________________________________________________________
+
+% get all possible coords for a rook, where not empty
+% moves any number of squares orthogonally on the first tower in its path.
+% valid_rook_coords(+Board, +X1, +Y1, +Direction)
+valid_rook_coords(Board, X1, Y1, X2, Y2, Dir):-
+    % get Y size of board
+    length(Board, YSize),
+    % get X size of board
+    nth0(0, Board, Row),
+    length(Row, XSize),
+
+    % check if coords are valid
+    X2 >= 0,
+    X2 < XSize,
+    Y2 >= 0,
+    Y2 < YSize,
+    %TODO:
+
+valid_rook_coords(Board, X1, Y1, X2, Y2, down) :-
+    X2 = X1,
+    Y2 is (Y1 + 1),
+    valid_rook_coords(Board, X1, Y2, X2, Y2, down).
+    get_piece(Board, X2, Y2, Piece),
+    Piece \= empty.
+    
+valid_rook_coords(Board, X1, Y1, X2, Y2, up) :-
+    X2 = X1,
+    Y2 is (Y1 - 1),
+    valid_rook_coords(Board, X1, Y2, X2, Y2, up).
+    get_piece(Board, X2, Y2, Piece),
+    Piece \= empty.
+
+valid_rook_coords(Board, X1, Y1, X2, Y2, left) :-
+    X2 is (X1 - 1),
+    Y2 = Y1,
+    valid_rook_coords(Board, X2, Y1, X2, Y2, left).
+    get_piece(Board, X2, Y2, Piece),
+    Piece \= empty.
+
+valid_rook_coords(Board, X1, Y1, X2, Y2, right) :-
+    X2 is (X1 + 1),
+    Y2 = Y1,
+    valid_rook_coords(Board, X2, Y1, X2, Y2, right).
+    get_piece(Board, X2, Y2, Piece),
+    Piece \= empty.
+
+
+% get all possible coords for a rook, where not empty
+% rook_coords(+Board, +X1, +Y1, -Result)
+rook_coords(Board, X1, Y1, Result) :-
+    findall(X2-Y2, valid_rook_coords(Board, X1, Y1, X2, Y2, _Dir), Result).
 
 % get all possible coords for a pawn, where not empty
-% % pawn_coords(+Board, +X1, +Y1, -Result)
+% pawn_coords(+Board, +X1, +Y1, -Result)
 pawn_coords(Board, X1, Y1, Result) :-
     findall(X2-Y2, valid_pawn_coords(Board, X1, Y1, X2, Y2), Result).
 
-% valid_pawn_coords_rec(Board, X1, Y1, Result):-
-%     valid_pawn_coords(X1, Y1, X2, Y2),
-%     get_piece(Board, X2, Y2, empty),
-%     valid_pawn_coords_rec(Board, X1, Y1, [X2-Y2 | Result]).
+% move piece of size N
+% move_piece(+Board, +X1, +Y1, +X2, +Y2, +N, -NewBoard)
+move_piece(Board, X1, Y1, X2, Y2, 1, NewBoard):-
+    move_pawn(Board, X1, Y1, X2, Y2, NewBoard).
+
+move_piece(Board, X1, Y1, X2, Y2, 2, NewBoard):-
+    move_rook(Board, X1, Y1, X2, Y2, NewBoard).
+
+move_piece(Board, X1, Y1, X2, Y2, 3, NewBoard):-
+    move_knight(Board, X1, Y1, X2, Y2, NewBoard).
+
+move_piece(Board, X1, Y1, X2, Y2, 4, NewBoard):-
+    move_bishop(Board, X1, Y1, X2, Y2, NewBoard).
+
+move_piece(Board, X1, Y1, X2, Y2, 5, NewBoard):-
+    move_queen(Board, X1, Y1, X2, Y2, NewBoard).
+
 
 % move pawn to a given position
 % move_pawn(+Board, +X1, +Y1, +X2, +Y2, -NewBoard)
