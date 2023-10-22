@@ -54,11 +54,16 @@ p_l([C|L]):-
 % where each number/letter (1-6)/(a-f) represents a the height of the tower to the player with that number/letter.
 % Numbers and letters are used to differentiate the colors of the pieces
 % p_c(+Cell)
-p_c(_-X):-
-    write(X), !.
-
 p_c(empty):-
     write(' '), !.
+
+p_c([0]):-
+    write(' '), !.
+
+p_c(Piece):-
+    last(Piece, TopPiece),
+    write(TopPiece), !.
+
 
 %_______________________________________________________
 

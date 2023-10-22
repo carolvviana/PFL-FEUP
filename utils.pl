@@ -1,0 +1,1 @@
+removehead([_|Tail], Tail).
