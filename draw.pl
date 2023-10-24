@@ -67,3 +67,9 @@ p_c(Piece):-
 
 %_______________________________________________________
 
+print_coordinates([]).
+print_coordinates([X-Y|T], N) :-
+    %trace,
+    N1 is N+1,
+    write(N), write('). '), write(X), write(','), write(Y), write('\n'),
+    print_coordinates(T, N1).

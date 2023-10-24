@@ -171,6 +171,16 @@ valid_queen_coords(Board, X1, Y1, X2, Y2) :-
 
 %_____________________________________________________
 
+valid_coords(Board, X, Y, 1, Result):-
+    pawn_coords(Board, X, Y, Result).
+
+valid_coords(Board, X, Y, 2, Result):-
+    rook_coords(Board, X, Y, Result).
+
+valid_coords(Board, X, Y, 3, Result):-
+    knight_coords(Board, X, Y, Result).
+
+
 % get all possible coords for a knight, where not empty
 % knight_coords(+Board, +X1, +Y1, -Result)
 knight_coords(Board, X1, Y1, Result) :-
