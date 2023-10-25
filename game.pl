@@ -9,7 +9,7 @@ get_piece(Board, X, Y, Piece) :-
     nth0(X, Row, Piece).
 
 % place a piece at a given position if empty
-% place_piece(+Board, +X, +Y, +Piece, -NewBoard)
+% add_new_piece(+Board, +X, +Y, +Piece, -NewBoard)
 add_new_piece(Board, X, Y, Piece, NewBoard) :-
     get_piece(Board, X, Y, empty),
     replace(Board, X, Y, Piece, NewBoard).
