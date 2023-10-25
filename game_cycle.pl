@@ -8,6 +8,22 @@ change_player(1,2):-
 change_player(2,1):-
     write('Player 1 turn \n').
 
+
+encadeação_game():-
+    new_piece_where(Board, Player, Len, Piece),
+    validate_new(Piece, Len, Board, Player, NewBoard),
+
+
+% Predicate that allows player to choose where to add a new piece
+new_piece_where(Board, Player, Len, Piece) :-
+    write('Where do you want to add the piece? \n'),
+    write('Please submit answer as (X,Y) \n'),
+
+    read(Piece),
+    length(Board, Len).
+
+    %validate_new(Piece, Len, Board, Player, NewBoard).
+
 validate_new(Piece, Len, Board, Player, NewBoard) :-
     Piece = (X,Y),
     X<Len,
@@ -49,15 +65,6 @@ validate_new(Piece, Len, Board, 2, NewBoard) :-
     p_m(NewBoard, Len),
     change_player(2,1).
 
-add_new_piece_input(Board, Player) :-
-    write('Where do you want to add the piece? \n'),
-    write('Please submit answer as (X,Y) \n'),
-
-    read(Piece),
-    length(Board, Len),
-
-    %trace,
-    validate_new(Piece, Len, Board, Player, NewBoard).
 
 validate_change(Input, Len, Board, Player):-
     Input = (X,Y),
@@ -77,7 +84,7 @@ validate_change(Input, Len, Board, Player):-
 
     print_coordinates(Result, 1),
 
-    change_piece(Result).
+    change_piece(Result, N, X, Y, Board).
 
 validate_change(Input, Len, Board, Player):-
     Input \= (X,Y),
@@ -107,4 +114,35 @@ change_piece_input(Board, Player):-
     validate_change(Piece, Len, Board, Player).
 
 
+change_piece(Result, N, X, Y, Board):- 
+
+    read(Option), % quais as coordenadas que a pessoa quer escolher
+    nth1(Option, Result, NewCoords),
+
+    NewCoords = X2-Y2,
+
+    write('How many disks do you want to move?\n'),
+    read(NDisks),
+
+    validate_ndisks(X, Y, X2, Y2, NDisks, N, Board).
+
+validate_ndisks(X, Y, X2, Y2, NDisks, N, Board) :-
+    NDisks =< N,
+    NDisks > 0,
+    
+    write('Great choice!\n'),
+    move_piece(Board, X, Y, X2, Y2, NDisks, NewBoard),
+    lenght(NewBoard, Len),
+    p_m(NewBoard, Len).
+    % fazer algo
+
+validate_ndisks(X, Y, X2, Y2, NDisks, N, Board) :-
+    NDisks < 0,
+    write('Please choose a positive number of disks.\n'),
+    change_piece(Result, N).
+    
+validate_ndisks(X, Y, X2, Y2, NDisks, N, Board) :-
+    NDisks > N,
+    write('Please choose a number of disks smaller or equal to the size of the piece.\n'),
+    change_piece(Result, N).
 
