@@ -6,37 +6,47 @@ repeat_string(Str, N, Result):-
     atom_concat(Str, NewResult, Result).
 
 print_separator(N):-
+    write('  '),
     repeat_string('-+', N-1, Result),
     atom_concat('+', Result, TempResult),
     atom_concat(TempResult, '-+', FinalResult),
     write(FinalResult), !.
 
-% prints the coords of the matrix
-% print_coords_h(+N)
-print_coords_h(N):-
+
+print_horizontal_coords(N, M):-
+    M < N,
     write(' '),
-    print_coords_h_aux(N, 1).
+    write(M),
+    M1 is M + 1,
+    print_horizontal_coords(N, M1).
 
 
-p_b([],N):- nl.
-p_b([H|T], N):-
-    nl,
-    print_coords_h(N),
-    p_m([H|T], N).
-    
-% prints the matrix of the game with coords
+% prints the matrix of the game
 % p_m(+Matrix, +N)
-p_m([], N):-
+p_m([L|T], N):-
+    nl,
+    write('  '),
+    print_horizontal_coords(N, 0),
+    nl.
+    
+p_m([L|T], N):-
+    p_m([L|T], N, 0).
+% prints the matrix of the game with coords
+% p_m(+Matrix, +N, +M)
+p_m([], N, _):-
     nl,
     print_separator(N).
 
-p_m([L|T], N):-
+p_m([L|T], N, M):-
     nl,
     print_separator(N),
     nl,
+    M1 is M + 1,
+    write(M),
+    write(' '),
     p_l(L), 
     write('|'),
-    p_m(T, N).
+    p_m(T, N, M1).
 
 %_______________________________________________________
 
@@ -66,10 +76,3 @@ p_c(Piece):-
 
 
 %_______________________________________________________
-
-print_coordinates([]).
-print_coordinates([X-Y|T], N) :-
-    %trace,
-    N1 is N+1,
-    write(N), write('). '), write(X), write(','), write(Y), write('\n'),
-    print_coordinates(T, N1).
