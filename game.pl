@@ -60,37 +60,146 @@ valid_pawn_coords(Board, X1, Y1, X2, Y2) :-
 
 % get all possible coords for a rook, where not empty
 % moves any number of squares orthogonally on the first tower in its path (not empty).
-% valid_rook_coords(+Board, +X1, +Y1, +Direction)
-valid_rook_coords(Board, X1, Y1, X2, Y2, _) :-
-    get_piece(Board, X2, Y2, Piece),
-    Piece \= empty.
-
+% valid_rook_coords(+Board, +X1, +Y1, -X2, -Y2, +Direction)
+% valid_rook_coords(Board, X1, Y1, X2, Y2, _) :-
+%     get_piece(Board, X2, Y2, Piece),
+%     Piece \= empty.
+/*
 valid_rook_coords(Board, X1, Y1, X2, Y2, up) :-
-    Y2 is (Y1 - 1),
-    get_piece(Board, X2, Y2, Piece),
+    NewY is (Y1 - 1),
+    get_piece(Board, X1, NewY, Piece),
     Piece = empty,
-    valid_rook_coords(Board, X1, Y2, X2, Y2, up).
+    \+valid_rook_coords(Board, X1, NewY, X2, Y2, up), !,
+    X2 is X1,
+    Y2 is Y1 - 1.
     
 valid_rook_coords(Board, X1, Y1, X2, Y2, down) :-
-    Y2 is (Y1 + 1),
-    get_piece(Board, X2, Y2, Piece),
+    NewY is (Y1 + 1),
+    get_piece(Board, X1, NewY, Piece),
     Piece = empty,
-    valid_rook_coords(Board, X1, Y2, X2, Y2, down).
+    \+valid_rook_coords(Board, X1, NewY, X2, Y2, down), !,
+    X2 is X1,
+    Y2 is Y1 + 1.
     
 valid_rook_coords(Board, X1, Y1, X2, Y2, left) :-
-    X2 is (X1 - 1),
-    get_piece(Board, X2, Y2, Piece),
+    NewX is (X1 - 1),
+    get_piece(Board, NewX, Y1, Piece),
     Piece = empty,
-    valid_rook_coords(Board, X2, Y1, X2, Y2, left).
+    \+valid_rook_coords(Board, NewX, Y1, X2, Y2, left), !,
+    Y2 is Y1,
+    X2 is X1 - 1.
     
 valid_rook_coords(Board, X1, Y1, X2, Y2, right) :-
-    X2 is (X1 + 1),
-    get_piece(Board, X2, Y2, Piece),
+    NewX is (X1 + 1),
+    get_piece(Board, NewX, Y1, Piece),
     Piece = empty,
-    valid_rook_coords(Board, X2, Y1, X2, Y2, right).
-
-
+    \+valid_rook_coords(Board, NewX, Y1, X2, Y2, right), !,
+    Y2 is Y1,
+    X2 is X1 + 1.
+*/
 %_____________________________________________________________
+    % get_piece(Board, NewX, NewY, Piece), !.
+    % Piece = empty ->
+    % (valid_rook_coords(Board, NewX, NewY, X2, Y2, Direction));
+    % (X2 = NewX,
+    % Y2 = NewY).
+
+    
+% valid_rook_coords(Board, X1, Y1, X2, Y2, Direction) :-
+%     direction_offset(Direction, DX, DY),
+%     NewX is X1 + DX,
+%     NewY is Y1 + DY,
+    
+%     get_piece(Board, NewX, NewY, Piece),
+%     Piece = empty,
+%     (valid_rook_coords(Board, NewX, NewY, X2, Y2, Direction)
+%     -> (X2 is NewX, Y2 is NewY)
+%     ; false).
+
+% valid_rook_coords(Board, X1, Y1, X2, Y2, Direction) :-
+%     X2 is X1,
+%     Y2 is Y1.
+
+% valid_rook_coords(Board, X1, Y1, X1, Y1, Direction).
+% valid_rook_coords(Board, X1, Y1, X2, Y2, Direction) :-
+%     direction_offset(Direction, DX, DY),
+%     X2 is X1 + DX,
+%     Y2 is Y1 + DY,
+    
+%     get_piece(Board, NewX, NewY, Piece), 
+%     (
+%         Piece = empty -> valid_rook_coords(Board, X2, Y2, X3, Y3, Direction)
+%         ; X2 is X3, Y2 is Y3
+%     ).
+
+
+
+% get all possible coords for a rook, where not empty
+% moves any number of squares orthogonally on the first tower in its path (not empty).
+% valid_rook_coords(+Board, +X1, +Y1, -X2, -Y2, +Direction)
+% valid_rook_coords(Board, X1, Y1, X2, Y2, Direction) :-
+%     direction_offset(Direction, DX, DY),
+%     X2 is X1 + DX,
+%     Y2 is Y1 + DY,
+
+%     (   (get_piece(Board, X2, Y2, Piece); fail),
+%         Piece \= empty
+%     ->  true, !
+%     ;   valid_rook_coords(Board, X2, Y2, X3, Y3, Direction),
+%         X2 is X3,
+%         Y2 is Y3
+%     ).
+direction_offset(up, 0, -1).
+direction_offset(down, 0, 1).
+direction_offset(left, -1, 0).
+direction_offset(right, 1, 0).
+
+% valid_rook_coords(Board, X1, Y1, X2, Y2, Direction) :-
+%     direction_offset(Direction, DX, DY),
+%     X2 is X1 + DX,
+%     Y2 is Y1 + DY,
+%     get_piece(Board, X2, Y2, empty),
+%     valid_rook_coords(Board, X2, Y2, X3, Y3, Direction).
+% valid_rook_coords(Board, X1, Y1, X2, Y2, Direction) :-
+%     direction_offset(Direction, DX, DY),
+%     X2 is X1 + DX,
+%     Y2 is Y1 + DY,
+%     get_piece(Board, X2, Y2, empty),
+%     valid_rook_coords(Board, X2, Y2, X3, Y3, Direction),
+%     X2 = X3,
+%     Y2 = Y3.
+
+valid_rook_coords(_, X, Y, X, Y, _).
+valid_rook_coords(Board, X1, Y1, X2, Y2, Direction) :-
+    direction_offset(Direction, DX, DY),
+    X3 is X1 + DX,
+    Y3 is Y1 + DY,
+    get_piece(Board, X3, Y3, empty),
+    valid_rook_coords(Board, X3, Y3, X2, Y2, Direction).
+
+% get all possible coords for a rook, where not empty
+% rook_coords(+Board, +X1, +Y1, -Result)
+rook_coords(Board, X1, Y1, Result) :-
+    findall(X2-Y2, valid_rook_coords(Board, X1, Y1, X2, Y2, _Dir), Result).
+
+/*
+rook_coords([
+    [empty, a, empty, empty],
+    [empty, a, empty, empty],
+    [empty, r, a, a],
+    [empty, a, empty, empty]
+], 1, 2, Result). Gives Result = [0-2] but should be [1-1, 1-3, 2-2]
+
+rook_coords([
+    [empty, a, empty, empty],
+    [empty, empty, empty, empty],
+    [empty, r, empty, a],
+    [empty, a, empty, empty]
+], 1, 2, Result). Gives Result = [1-1, 0-2, 2-2] but should be [0-1, 1-3, 3-2]
+
+*/
+
+
 
 % get all possible coords for a knight, where not empty
 % valid_knight_coords(+Board, +X1, +Y1, ?X2, ?Y2)
@@ -169,10 +278,6 @@ valid_coords(Board, X, Y, 3, Result):-
 knight_coords(Board, X1, Y1, Result) :-
     findall(X2-Y2, valid_knight_coords(Board, X1, Y1, X2, Y2), Result).
 
-% get all possible coords for a rook, where not empty
-% rook_coords(+Board, +X1, +Y1, -Result)
-rook_coords(Board, X1, Y1, Result) :-
-    findall(X2-Y2, valid_rook_coords(Board, X1, Y1, X2, Y2, _Dir), Result).
 
 % get all possible coords for a pawn, where not empty
 % pawn_coords(+Board, +X1, +Y1, -Result)
