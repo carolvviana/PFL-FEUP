@@ -2,7 +2,6 @@
 :- consult('utils.pl').
 :- use_module(library(lists)).
 :- use_module(library(between)).
-:- use_module(library(dcg/high_order)).
 
 % get all possible coords for a pawn, where not empty
 % valid_pawn_coords(+Board, +X1, +Y1, ?X2, ?Y2)
@@ -180,20 +179,11 @@ valid_coords(Board, X, Y, 4, Result):-
 valid_coords(Board, X, Y, 5, Result):-
     queen_coords(Board, X, Y, Result).
 
-
-
-% get all possible coords for a knight, where not empty
-% knight_coords(+Board, +X1, +Y1, -Result)
-knight_coords(Board, X1, Y1, Result) :-
-    findall(X2-Y2, valid_knight_coords(Board, X1, Y1, X2, Y2), Result).
-
-
-% get all possible coords for a pawn, where not empty
-% pawn_coords(+Board, +X1, +Y1, -Result)
-pawn_coords(Board, X1, Y1, Result) :-
-    findall(X2-Y2, (valid_pawn_coords(Board, X1, Y1, X2, Y2), X1-Y1 \= X2-Y2), Result).
-
 %______________________________________________________________________________
+
+
+
+
 
 split(Piece, N, NewHead, NewTail) :-
     length(NewTail, N),
@@ -232,3 +222,26 @@ move_piece(Board, X1, Y1, X2, Y2, N, NewBoard) :-
 
 
 %______________________________________________________________________________
+
+
+
+%tests
+/*
+
+valid_coords([
+    [a,b,c,d,e],
+    [f,g,h,i,j],
+    [k,l,m,n,o],
+    [p,q,r,s,t],
+    [u,v,w,x,y]
+    ], 2, 2, 1, Result).
+
+valid_coords([
+    [a,b,    c,    d,    e],
+    [f,empty,empty,empty,j],
+    [k,empty,m,    empty,o],
+    [p,empty,empty,empty,t],
+    [u,v,    w,    x,    y]
+    ], 2, 2, 1, Result).
+
+*/
