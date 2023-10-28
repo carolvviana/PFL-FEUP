@@ -1,6 +1,9 @@
 :- consult('draw.pl').
 :- consult('utils.pl').
 :- use_module(library(lists)).
+:- use_module(library(between)).
+:- use_module(library(dcg/high_order)).
+
 
 % get the piece at a given position
 % get_piece(+Board, +X, +Y, ?Piece)
@@ -168,19 +171,41 @@ direction_offset(right, 1, 0).
 %     valid_rook_coords(Board, X2, Y2, X3, Y3, Direction),
 %     X2 = X3,
 %     Y2 = Y3.
+reverse_between(High, Low, High) :- 
+    High >= Low.
 
-valid_rook_coords(_, X, Y, X, Y, _).
+reverse_between(High, Low, X) :-
+    High > Low,
+    NewHigh is High - 1,
+    reverse_between(NewHigh, Low, X).
+
+% valid_rook_coords(_, X, Y, X, Y, _).
 valid_rook_coords(Board, X1, Y1, X2, Y2, Direction) :-
-    direction_offset(Direction, DX, DY),
-    X3 is X1 + DX,
-    Y3 is Y1 + DY,
-    get_piece(Board, X3, Y3, empty),
-    valid_rook_coords(Board, X3, Y3, X2, Y2, Direction).
+    length(Board, N),
+    Size is N - 1,
+
+    (
+        Direction = up, Y is Y1 - 1, NewX is X1, reverse_between(Y, 0, NewY);
+        Direction = down, Y is Y1 + 1, NewX is X1, between(Y, Size, NewY);
+        Direction = left, X is X1 - 1, NewY is Y1, reverse_between(X, 0, NewX);
+        Direction = right, X is X1 + 1, NewY is Y1, between(X, Size, NewX)
+    ),
+    
+    get_piece(Board, NewX, NewY, Piece),
+    dif(Piece, empty), !,
+    Y2 is NewY,
+    X2 is NewX.
 
 % get all possible coords for a rook, where not empty
 % rook_coords(+Board, +X1, +Y1, -Result)
 rook_coords(Board, X1, Y1, Result) :-
-    findall(X2-Y2, valid_rook_coords(Board, X1, Y1, X2, Y2, _Dir), Result).
+    findall(X2-Y2, 
+        (
+            valid_rook_coords(Board, X1, Y1, X2, Y2, right);
+            valid_rook_coords(Board, X1, Y1, X2, Y2, down);
+            valid_rook_coords(Board, X1, Y1, X2, Y2, left);
+            valid_rook_coords(Board, X1, Y1, X2, Y2, up)
+        ), Result).
 
 /*
 rook_coords([

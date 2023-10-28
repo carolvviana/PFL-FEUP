@@ -8,22 +8,29 @@ change_player(1,2):-
 change_player(2,1):-
     write('Player 1 turn \n').
 
-start(Board, Player, NewBoard):-
-    encadeacao_game(Board, Player, NewBoard).
+%_______________________________________________________________________________________________________________________
 
+% Predicate that allows player to choose where to add a new piece
+% encadeação_game(+Board, +Player, -NewBoard)
 encadeacao_game(Board, Player, NewBoard):-
 
     new_piece_where(Board, Len, Piece, NewBoard, Player),
     length(NewBoard, Len),
     p_m(NewBoard, Len).
 
+%_______________________________________________________________________________________________________________________
+
+% Predicate that read the input of the player regarding where he wants to add a new piece
+% get_piece_input(-Piece)
 get_piece_input(Piece):-
     write('Where do you want to add the piece? \n'),
     write('Please submit answer as (X,Y) \n'),
     read(Piece).
 
-% Predicate that allows player to choose where to add a new piece
-% new_piece_where(+Board, -Len, -Piece)
+%_______________________________________________________________________________________________________________________    
+
+% Predicate that receives were player wants to add a new piece and adds it to the board if possible
+% new_piece_where(+Board, -Len, -Piece, -NewBoard, +Player)
 new_piece_where(Board, Len, Piece, NewBoard, Player) :-
     get_piece_input(Piece),
 
@@ -31,6 +38,10 @@ new_piece_where(Board, Len, Piece, NewBoard, Player) :-
 
     validate_input(Board, Piece, Len, X, Y, NewBoard, Player).
 
+%_______________________________________________________________________________________________________________________
+
+% Predicate that validates input and add piece to board if possible
+% validate_input(+Board,+Piece, +Len, -X, -Y, -NewBoard, +Player)
 validate_input(Board, Piece, Len, X, Y, NewBoard, Player):-
     \+validate_new(Piece, Len, X,Y),
     write('Invalid input. Please try again.\n'),
@@ -57,6 +68,7 @@ validate_input(Board, Piece, Len, X, Y, NewBoard, 2):-
 
     write('Great choice!').
 
+%_______________________________________________________________________________________________________________________
 
 % Predicate that verifies if player chose coordinates in bounds of the board
 % validate_new(+Piece, +Len, -X, -Y)
@@ -65,8 +77,66 @@ validate_new(Piece, Len, X,Y) :-
     X<Len,
     Y<Len.
 
+%_______________________________________________________________________________________________________________________
 
 
+encadeacao():-
+
+    change_piece_input(Board, Player, Piece),
+
+    change_piece_where(Piece, Len, Board, Player),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+change_piece_input(Piece):-
+    write('Which piece do you want to change? \n'),
+    write('Please submit answer as (X,Y) \n'),
+
+    read(Piece).
+
+    
+change_piece_where(Input, Len, Board, Piece):-
+    change_piece_input(Input),
+
+    length(Board, Len),
+
+    validate_change(Input, Len, Board, Piece).
+
+
+
+
+
+validate_change(Input, Len, Board, Piece):-
+    \+validate_new(Input, Len, X, Y),
+    write('Invalid input. Please try again.\n'),
+    change_piece_where(Board, Player).
+
+validate_change(Input, Len, Board, Piece):-
+    validate_new(Input, Len, X, Y),
+
+    get_piece(Board, X, Y, Piece),
+    Piece = empty,
+    write('Invalid input. Please try again.\n'),
+    change_piece_where(Board, Player).
+
+validate_change(Input, Len, Board, Piece):-
+    validate_new(Input, Len, X, Y),
+
+    get_piece(Board, X, Y, Piece),
+    Piece \= empty,
+
+    write('Great choice!').
 
 
 
@@ -93,7 +163,7 @@ validate_change(Input, Len, Board, Player):-
 
     change_piece(Result, N, X, Y, Board).
 
-validate_change(Input, Len, Board, Player):-
+v/*alidate_change(Input, Len, Board, Player):-
     Input \= (X,Y),
     write('Invalid input. Please try again.\n'),
     change_piece_input(Board, Player).
@@ -109,16 +179,9 @@ validate_change(Input, Len, Board, Player):-
     X<Len,
     Y>=Len,
     write('Invalid input. Please try again.\n'),
-    change_piece_input(Board, Player).
+    change_piece_input(Board, Player).*/
 
-change_piece_input(Board, Player):-
-    write('Which piece do you want to change? \n'),
-    write('Please submit answer as (X,Y) \n'),
 
-    read(Piece),
-    length(Board, Len),
-
-    validate_change(Piece, Len, Board, Player).
 
 
 change_piece(Result, N, X, Y, Board):- 
