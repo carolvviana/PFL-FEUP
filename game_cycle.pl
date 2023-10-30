@@ -80,10 +80,14 @@ validate_new(Piece, Len, X,Y) :-
 %_______________________________________________________________________________________________________________________
 
 
-encadeacao():-
+encadeacao(Board, Player):-
 
-    change_piece_where(Piece, Len, Board, Player),
-    
+    change_piece_where(Piece, Len, Board, Player, X, Y),
+
+    change_piece_to_where(Piece, X, Y, Result),
+
+    print_coordinates(Result, 1).
+
 
 
 
@@ -105,23 +109,20 @@ change_piece_input(Piece):-
     read(Piece).
 
     
-change_piece_where(Input, Len, Board, Piece):-
+change_piece_where(Input, Len, Board, Piece, X, Y):-
     change_piece_input(Input),
 
     length(Board, Len),
 
-    validate_change(Input, Len, Board, Piece).
+    validate_change(Input, Len, Board, Piece, X, Y).
 
 
-
-
-
-validate_change(Input, Len, Board, Piece):-
+validate_change(Input, Len, Board, Piece, X, Y):-
     \+validate_new(Input, Len, X, Y),
     write('Invalid input. Please try again.\n'),
     change_piece_where(Board, Player).
 
-validate_change(Input, Len, Board, Piece):-
+validate_change(Input, Len, Board, Piece, X, Y):-
     validate_new(Input, Len, X, Y),
 
     get_piece(Board, X, Y, Piece),
@@ -129,13 +130,22 @@ validate_change(Input, Len, Board, Piece):-
     write('Invalid input. Please try again.\n'),
     change_piece_where(Board, Player).
 
-validate_change(Input, Len, Board, Piece):-
+validate_change(Input, Len, Board, Piece, X, Y):-
     validate_new(Input, Len, X, Y),
 
     get_piece(Board, X, Y, Piece),
     Piece \= empty,
 
     write('Great choice!').
+
+
+
+change_piece_to_where(Piece, X, Y, Result):-
+    nth0(0, Piece, N), %obter tamanho da peça
+    valid_coords(Board, X, Y, N, Result).
+
+
+
 
 
 
@@ -162,7 +172,7 @@ validate_change(Input, Len, Board, Player):-
 
     change_piece(Result, N, X, Y, Board).
 
-v/*alidate_change(Input, Len, Board, Player):-
+/*validate_change(Input, Len, Board, Player):-
     Input \= (X,Y),
     write('Invalid input. Please try again.\n'),
     change_piece_input(Board, Player).
