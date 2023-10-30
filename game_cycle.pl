@@ -82,9 +82,8 @@ validate_new(Piece, Len, X,Y) :-
 
 encadeacao():-
 
-    change_piece_input(Board, Player, Piece),
-
     change_piece_where(Piece, Len, Board, Player),
+    
 
 
 
