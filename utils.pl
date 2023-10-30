@@ -37,3 +37,6 @@ replace_row(Row, X, Piece, NewRow) :-
     nth0(X, NewRow, Piece, TempRow).
 
 %_______________________________________________________________________________________
+
+% clear the terminal
+cls :- write('\33\[2J').

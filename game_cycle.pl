@@ -82,9 +82,9 @@ validate_new(Piece, Len, X,Y) :-
 
 encadeacao(Board, Player):-
 
-    change_piece_where(Piece, Len, Board, Player, X, Y),
+    change_piece_where(Input, Len, Board, Piece, X, Y),
 
-    change_piece_to_where(Piece, X, Y, Result),
+    change_piece_to_where(Board, Piece, X, Y, Result),
 
     print_coordinates(Result, 1).
 
@@ -136,11 +136,11 @@ validate_change(Input, Len, Board, Piece, X, Y):-
     get_piece(Board, X, Y, Piece),
     Piece \= empty,
 
-    write('Great choice!').
+    write('Great choice!\n').
 
 
 
-change_piece_to_where(Piece, X, Y, Result):-
+change_piece_to_where(Board, Piece, X, Y, Result):-
     nth0(0, Piece, N), %obter tamanho da peça
     valid_coords(Board, X, Y, N, Result).
 
@@ -151,7 +151,7 @@ change_piece_to_where(Piece, X, Y, Result):-
 
 
 
-
+/*
 validate_change(Input, Len, Board, Player):-
     Input = (X,Y),
     X<Len,
@@ -190,7 +190,7 @@ validate_change(Input, Len, Board, Player):-
     write('Invalid input. Please try again.\n'),
     change_piece_input(Board, Player).*/
 
-
+/*
 
 
 change_piece(Result, N, X, Y, Board):- 
@@ -225,3 +225,4 @@ validate_ndisks(X, Y, X2, Y2, NDisks, N, Board) :-
     write('Please choose a number of disks smaller or equal to the size of the piece.\n'),
     change_piece(Result, N).
 
+*/

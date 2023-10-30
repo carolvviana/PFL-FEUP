@@ -92,7 +92,6 @@ second_menu_input(4) :-
 %_________________________________________
 
 % Predicate that represents valid menu options for the first menu
-
 play :-
     write('\nSIX-MAKING\n'),
     write('\n1. Play Game\n'),
