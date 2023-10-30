@@ -77,7 +77,7 @@ p_c(Piece):-
 
 %_______________________________________________________
 
-print_coordinates([]).
+print_coordinates([],_).
 print_coordinates([X-Y|T], N) :-
     %trace,
     N1 is N+1,

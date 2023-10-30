@@ -85,6 +85,7 @@ encadeacao(Board, Player):-
     change_piece_where(Input, Len, Board, Piece, X, Y),
 
     change_piece_to_where(Board, Piece, X, Y, Result),
+    % trace,
 
     print_coordinates(Result, 1),
 
@@ -149,21 +150,26 @@ change_piece_to_where(Board, Piece, X, Y, Result):-
     valid_coords(Board, X, Y, N, Result),
     write('Where do you want to move your piece?\n').
 
-choose_where_to_move(Result, X2, Y2):-
-    read(Option), % quais as coordenadas que a pessoa quer escolher
+validate_coords(Option, Result):-
     length(Result, Len),
-    Option > Len, %validar se a opção é válida
+    Option > Len,
     write('Invalid input. Please try again.\n'),
+
     choose_where_to_move(Result).
 
-choose_where_to_move(Result, X2, Y2):-
-    read(Option), % quais as coordenadas que a pessoa quer escolher
+validate_coords(Option, Result):-
     length(Result, Len),
     Option < Len,
+    write('Great choice!\n').
 
+
+choose_where_to_move(Result, X2, Y2):-
+    read(Option), % quais as coordenadas que a pessoa quer escolher
+    validate_coords(Option, Result),
 
     nth1(Option, Result, NewCoords),
     NewCoords = X2-Y2.
+
 
 
 
