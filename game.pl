@@ -27,7 +27,7 @@ valid_pawn_coords(Board, X1, Y1, X2, Y2, Direction) :-
 
 %_______________________________________________________________________________________
 
-% get all possible coords for a rook, where not empty
+% get all possible coords for a rook or a bishop, where not empty
 % moves any number of squares orthogonally on the first tower in its path (not empty).
 % valid_rook_coords(_, X, Y, X, Y, _).
 valid_recursive_coords(Board, X1, Y1, X2, Y2, Direction) :-
@@ -143,6 +143,8 @@ queen_coords(Board, X1, Y1, Result):-
 
 %_____________________________________________________
 
+% get all possible coords for a piece of size N
+% used by the game itself to get coords, like an API, sort of
 valid_coords(Board, X, Y, 1, Result):-
     pawn_coords(Board, X, Y, Result).
 
