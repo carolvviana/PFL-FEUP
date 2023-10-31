@@ -3,29 +3,25 @@
 :- use_module(library(lists)).
 :- use_module(library(between)).
 
+%______________________________________________________________________________
+
+direction(up, 0, -1).
+direction(down, 0, 1).
+direction(left, -1, 0).
+direction(right, 1, 0).
+direction(up_right, 1, -1).
+direction(down_right, 1, 1).
+direction(down_left, -1, 1).
+direction(up_left, -1, -1).
+
+%______________________________________________________________________________
+
 % get all possible coords for a pawn, where not empty
-% valid_pawn_coords(+Board, +X1, +Y1, ?X2, ?Y2)
-valid_pawn_coords(Board, X1, Y1, X2, Y2) :-
-    X2 = X1,
-    Y2 is (Y1 + 1),
-    get_piece(Board, X2, Y2, Piece),
-    Piece \= empty.
-
-valid_pawn_coords(Board, X1, Y1, X2, Y2) :-    
-    X2 = X1,
-    Y2 is (Y1 - 1),
-    get_piece(Board, X2, Y2, Piece),
-    Piece \= empty.
-
-valid_pawn_coords(Board, X1, Y1, X2, Y2) :-
-    X2 is (X1 + 1),
-    Y2 = Y1,
-    get_piece(Board, X2, Y2, Piece),
-    Piece \= empty.
-
-valid_pawn_coords(Board, X1, Y1, X2, Y2) :-
-    X2 is (X1 - 1),
-    Y2 = Y1,
+% valid_pawn_coords(+Board, +X1, +Y1, ?X2, ?Y2, +Direction)
+valid_pawn_coords(Board, X1, Y1, X2, Y2, Direction) :-
+    direction(Direction, DX, DY),
+    X2 is X1 + DX,
+    Y2 is Y1 + DY,
     get_piece(Board, X2, Y2, Piece),
     Piece \= empty.
 
@@ -34,21 +30,18 @@ valid_pawn_coords(Board, X1, Y1, X2, Y2) :-
 % get all possible coords for a rook, where not empty
 % moves any number of squares orthogonally on the first tower in its path (not empty).
 % valid_rook_coords(_, X, Y, X, Y, _).
-valid_rook_coords(Board, X1, Y1, X2, Y2, Direction) :-
+valid_recursive_coords(Board, X1, Y1, X2, Y2, Direction) :-
     length(Board, N),
     Size is N - 1,
 
-    (
-        Direction = up, Y is Y1 - 1, NewX is X1, reverse_between(Y, 0, NewY);
-        Direction = down, Y is Y1 + 1, NewX is X1, between(Y, Size, NewY);
-        Direction = left, X is X1 - 1, NewY is Y1, reverse_between(X, 0, NewX);
-        Direction = right, X is X1 + 1, NewY is Y1, between(X, Size, NewX)
-    ),
-    
-    get_piece(Board, NewX, NewY, Piece),
-    dif(Piece, empty), !,
-    Y2 is NewY,
-    X2 is NewX.
+    direction(Direction, DX, DY),
+
+    between(1, Size, N1),
+    X2 is X1 + DX*N1,
+    Y2 is Y1 + DY*N1,
+
+    get_piece(Board, X2, Y2, Piece),
+    dif(Piece, empty), !.
 
 
 % get all possible coords for a knight, where not empty
@@ -103,40 +96,26 @@ valid_knight_coords(Board, X1, Y1, X2, Y2) :-
 
 %______________________________________________________________________________
 
-% get all valid coords for a bishop, where not empty
-% valid_bishop_coords(+Board, +X1, +Y1, ?X2, ?Y2, ?Direction)
-valid_bishop_coords(Board, X1, Y1, X2, Y2, Direction) :-
-    length(Board, N),
-    Size is N - 1,
-
-    (
-        Direction = up_right, X is X1 + 1, Y is Y1 - 1, between(X, Size, NewX), reverse_between(Y, 0, NewY);
-        Direction = down_right, X is X1 + 1, Y is Y1 + 1, between(X, Size, NewX), between(Y, Size, NewY);
-        Direction = down_left, X is X1 - 1, Y is Y1 + 1, reverse_between(X, 0, NewX), between(Y, Size, NewY);
-        Direction = up_left, X is X1 - 1, Y is Y1 - 1, reverse_between(X, 0, NewX), reverse_between(Y, 0, NewY)
-    ),
-    
-    get_piece(Board, NewX, NewY, Piece),
-    dif(Piece, empty), !,
-    Y2 is NewY,
-    X2 is NewX.
-
-%______________________________________________________________________________
-
 % get all possible coords for a pawn
 %pawn_coords(+Board, +X1, +Y1, -Result)
 pawn_coords(Board, X1, Y1, Result) :-
-    findall(X2-Y2, valid_pawn_coords(Board, X1, Y1, X2, Y2), Result).
+    findall(X2-Y2, 
+        (
+            valid_pawn_coords(Board, X1, Y1, X2, Y2, up);
+            valid_pawn_coords(Board, X1, Y1, X2, Y2, down);
+            valid_pawn_coords(Board, X1, Y1, X2, Y2, left);
+            valid_pawn_coords(Board, X1, Y1, X2, Y2, right)
+        ), Result).
 
 % get all possible coords for a rook, where not empty
 % rook_coords(+Board, +X1, +Y1, -Result)
 rook_coords(Board, X1, Y1, Result) :-
     findall(X2-Y2, 
         (
-            valid_rook_coords(Board, X1, Y1, X2, Y2, right);
-            valid_rook_coords(Board, X1, Y1, X2, Y2, down);
-            valid_rook_coords(Board, X1, Y1, X2, Y2, left);
-            valid_rook_coords(Board, X1, Y1, X2, Y2, up)
+            valid_recursive_coords(Board, X1, Y1, X2, Y2, right);
+            valid_recursive_coords(Board, X1, Y1, X2, Y2, down);
+            valid_recursive_coords(Board, X1, Y1, X2, Y2, left);
+            valid_recursive_coords(Board, X1, Y1, X2, Y2, up)
         ), Result).
 
 % get all possible coords for a knight
@@ -149,10 +128,10 @@ knight_coords(Board, X1, Y1, Result) :-
 bishop_coords(Board, X1, Y1, Result) :-
     findall(X2-Y2, 
         (
-            valid_bishop_coords(Board, X1, Y1, X2, Y2, up_right);
-            valid_bishop_coords(Board, X1, Y1, X2, Y2, down_right);
-            valid_bishop_coords(Board, X1, Y1, X2, Y2, down_left);
-            valid_bishop_coords(Board, X1, Y1, X2, Y2, up_left)
+            valid_recursive_coords(Board, X1, Y1, X2, Y2, up_right);
+            valid_recursive_coords(Board, X1, Y1, X2, Y2, down_right);
+            valid_recursive_coords(Board, X1, Y1, X2, Y2, down_left);
+            valid_recursive_coords(Board, X1, Y1, X2, Y2, up_left)
         ), Result).
 
 % get all possible coords for a queen
@@ -235,6 +214,20 @@ valid_coords([
     [[1,p],[1,q],[1,r],[1,s],[1,t]],
     [[1,u],[1,v],[1,w],[1,x],[1,y]]
     ], 2, 2, 1, Result).
+
+
+valid_coords([
+    [[x,o],  [x],    empty,     [pawn], [pawn]],
+    [[o],    empty,  empty,     empty,  [pawn]],
+    [empty,  [pawn], [x,x,o,o], [pawn], [pawn]],
+    [[pawn], [pawn], empty,    [x],    [pawn]],
+    [[pawn], [pawn], [pawn],    [pawn], [pawn]]
+  ], 2, 2, 2, Result).
+
+  1-3, 3-3, 0-0, 0-4
+
+  valid_coords([[[x,o],  [x],    empty,     [pawn], [pawn]], [[o],    empty,  empty,     empty,  [pawn]], [empty,  [pawn], [x,x,o,o], [pawn], [pawn]], [[pawn], [pawn], [pawn],    [x],    [pawn]], [[pawn], [pawn], [pawn],    [pawn], [pawn]]], 2, 2, 4, Result).
+
 
 valid_coords([
     [a,b,    c,    d,    e],

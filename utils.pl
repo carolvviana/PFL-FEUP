@@ -1,16 +1,5 @@
 removehead([_|Tail], Tail).
 
-% same as between/3 but in reverse
-reverse_between(High, Low, High) :- 
-    High >= Low.
-
-reverse_between(High, Low, X) :-
-    High > Low,
-    NewHigh is High - 1,
-    reverse_between(NewHigh, Low, X).
-
-%_____________________________________
-
 % get the piece at a given position
 % get_piece(+Board, +X, +Y, ?Piece)
 get_piece(Board, X, Y, Piece) :-

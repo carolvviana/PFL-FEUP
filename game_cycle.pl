@@ -109,11 +109,6 @@ encadeacao(Board, Player):-
 
     p_m(NewBoard, Len).
 
-
-
-
-
-
 change_piece_input(Piece):-
     write('Which piece do you want to change? \n'),
     write('Please submit answer as (X,Y) \n'),
