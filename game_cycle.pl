@@ -14,7 +14,7 @@ change_player(2,1):-
 % encadeação_game(+Board, +Player, -NewBoard)
 encadeacao_game(Board, Player, NewBoard):-
 
-    new_piece_where(Board, Len, Piece, NewBoard, Player),
+    new_piece_where(Board, Len, _Piece, NewBoard, Player),
     length(NewBoard, Len),
     p_m(NewBoard, Len).
 
@@ -32,11 +32,20 @@ get_piece_input(Piece):-
 % Predicate that receives were player wants to add a new piece and adds it to the board if possible
 % new_piece_where(+Board, -Len, -Piece, -NewBoard, +Player)
 new_piece_where(Board, Len, Piece, NewBoard, Player) :-
+    repeat,
     get_piece_input(Piece),
 
     length(Board, Len),
 
-    validate_input(Board, Piece, Len, X, Y, NewBoard, Player).
+    validate_input(Board, Piece, Len, X, Y, NewBoard, Player), !.
+
+new_piece_where(Board, Len, Piece, NewBoard, Player) :-
+    repeat,
+    get_piece_input(Piece),
+
+    length(Board, Len),
+
+    \+validate_input(Board, Piece, Len, X, Y, NewBoard, Player), fail.
 
 %_______________________________________________________________________________________________________________________
 
@@ -46,7 +55,7 @@ validate_input(Board, Piece, Len, X, Y, NewBoard, Player):-
     \+validate_new(Piece, Len, X,Y),
     write('Invalid input. Please try again.\n'),
 
-    new_piece_where(Board, Len, Input, NewBoard, Player).
+    fail.
 
 validate_input(Board, Piece, Len, X, Y, NewBoard, Player):-
     validate_new(Piece, Len, X,Y),
@@ -54,7 +63,7 @@ validate_input(Board, Piece, Len, X, Y, NewBoard, Player):-
     \+add_new_piece(Board, X,Y, _, NewBoard),
     write('Board is not empty. Please choose an empty square.\n'),
 
-    new_piece_where(Board, Len, Input, NewBoard, Player).
+    fail.
 
 validate_input(Board, Piece, Len, X, Y, NewBoard, 1):-
     validate_new(Piece, Len, X,Y),
@@ -81,26 +90,24 @@ validate_new(Piece, Len, X,Y) :-
 
 
 encadeacao(Board, Player):-
+%trace,
 
     change_piece_where(Input, Len, Board, Piece, X, Y),
 
     change_piece_to_where(Board, Piece, X, Y, Result),
-    % trace,
 
     print_coordinates(Result, 1),
+    %trace,
 
     choose_where_to_move(Result, X2, Y2),
 
-    write(X2, Y2).
+    choose_how_many_disks(NDisks, Piece),
 
+    move_piece(Board, X, Y, X2, Y2, NDisks, NewBoard),
 
+    write('Great move!\n'),
 
-
-
-
-
-
-
+    p_m(NewBoard, Len).
 
 
 
@@ -115,17 +122,27 @@ change_piece_input(Piece):-
 
     
 change_piece_where(Input, Len, Board, Piece, X, Y):-
+    repeat,     
     change_piece_input(Input),
 
     length(Board, Len),
 
-    validate_change(Input, Len, Board, Piece, X, Y).
+    validate_change(Input, Len, Board, Piece, X, Y), !.
+
+change_piece_where(Input, Len, Board, Piece, X, Y):-
+    repeat,     
+    change_piece_input(Input),
+
+    length(Board, Len),
+
+    \+validate_change(Input, Len, Board, Piece, X, Y), fail.
 
 
 validate_change(Input, Len, Board, Piece, X, Y):-
     \+validate_new(Input, Len, X, Y),
     write('Invalid input. Please try again.\n'),
-    change_piece_where(Board, Player).
+    %change_piece_where(_, _, Board, _, _, _),
+    fail.
 
 validate_change(Input, Len, Board, Piece, X, Y):-
     validate_new(Input, Len, X, Y),
@@ -133,7 +150,8 @@ validate_change(Input, Len, Board, Piece, X, Y):-
     get_piece(Board, X, Y, Piece),
     Piece = empty,
     write('Invalid input. Please try again.\n'),
-    change_piece_where(Board, Player).
+    %change_piece_where(_, _, Board, _, _, _),
+    fail.
 
 validate_change(Input, Len, Board, Piece, X, Y):-
     validate_new(Input, Len, X, Y),
@@ -150,27 +168,64 @@ change_piece_to_where(Board, Piece, X, Y, Result):-
     valid_coords(Board, X, Y, N, Result),
     write('Where do you want to move your piece?\n').
 
+
+
 validate_coords(Option, Result):-
     length(Result, Len),
     Option > Len,
     write('Invalid input. Please try again.\n'),
 
-    choose_where_to_move(Result).
+    %choose_where_to_move(Result, _,_).
+    fail.
 
 validate_coords(Option, Result):-
     length(Result, Len),
-    Option < Len,
+    Option =< Len,
     write('Great choice!\n').
 
 
 choose_where_to_move(Result, X2, Y2):-
+    repeat,
     read(Option), % quais as coordenadas que a pessoa quer escolher
-    validate_coords(Option, Result),
+    validate_coords(Option, Result), !,
 
     nth1(Option, Result, NewCoords),
     NewCoords = X2-Y2.
 
+choose_where_to_move(Result, X2, Y2):-
+    repeat,
+    read(Option), % quais as coordenadas que a pessoa quer escolher
+    \+validate_coords(Option, Result), fail.
 
+
+choose_how_many_disks(NDisks, Piece):-
+    repeat,
+    write('How many disks do you want to move?\n'),
+    read(NDisks),
+
+    validate_ndisks(NDisks, Piece),!.
+
+choose_how_many_disks(NDisks, Piece, Ret):-
+    repeat,
+    write('How many disks do you want to move?\n'),
+    read(NDisks),
+
+    \+validate_ndisks(NDisks, Piece),
+    fail.
+
+
+
+validate_ndisks(NDisks, Piece) :- % X e Y são as coordenadas da peça que a pessoa quer mover
+    nth0(0, Piece, N), %obter tamanho da peça
+    NDisks > N,
+    write('Please choose a number of disks smaller or equal to the size of the piece.\n'),
+    fail.
+
+validate_ndisks(NDisks, Piece) :- % X e Y são as coordenadas da peça que a pessoa quer mover
+    nth0(0, Piece, N), %obter tamanho da peça
+    NDisks =< N,
+    NDisks > 0,
+    write('Great choice!\n').
 
 
 /*
