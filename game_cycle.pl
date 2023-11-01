@@ -17,16 +17,44 @@ next_player(ai, human):-
 
 %_______________________________________________________________________________________________________________________
 
-game_cycle(GameState-Player):-
+game_cycle(GameState-Player, History-Index):-
+    write('winner\n'),
+    game_over(GameState, Winner),!.
+    % congratulate(Winner).
+
+game_cycle(GameState-Player, History-Index):-
+
     repeat,
+    
     length(GameState, Len),
     choose_play(Option),
     single_play(Option, GameState, Player, NewGameState),
+    
+    check_history(History-Index, NewGameState, NewHistory-NewIndex),
+    
     next_player(Player, NewPlayer),
     write('\n --------CURRENT BOARD--------\n'),
     p_m(NewGameState, Len), !,
-    game_cycle(NewGameState-NewPlayer).
 
+    
+    game_cycle(NewGameState-NewPlayer, NewHistory-NewIndex).
+
+has_six_head([[[6|_]|_]|_]).
+has_six_head([[_|T]|_]) :- has_six_head([T|_]).
+has_six_head([_|T]) :- has_six_head(T).
+
+check_history(History-Index, GameState, NewHistory-NewIndex):-
+%trace,
+    Previous is Index - 2,
+    nth0(Previous, History, PreviousGameState),
+    PreviousGameState \= GameState
+    ; (write('\nInvalid Move! Please choose another move'), fail),
+    append(History, GameState, NewHistory),
+    NewIndex is Index +1.
+
+game_over(GameState, Winner):-
+fail.
+    %has_six_head(GameState).
 
 
 choose_play(Option):-
