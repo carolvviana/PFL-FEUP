@@ -2,6 +2,7 @@
 :- consult('utils.pl').
 :- use_module(library(lists)).
 :- use_module(library(between)).
+:- use_module(library(random)).
 
 %______________________________________________________________________________
 
@@ -162,11 +163,6 @@ valid_coords(Board, X, Y, 5, Result):-
 
 %______________________________________________________________________________
 
-
-alphabetical(X) :- is_alpha(X).
-
-% alphabetical(1).
-% alphabetical(a).
 /*forall_custom(Lower, Upper, Goal) :-
     Lower =< Upper,
     call(Goal),

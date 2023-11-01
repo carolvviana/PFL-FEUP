@@ -8,11 +8,11 @@ next_player(1,2):-
 next_player(2,1):-
     write('\nPlayer 1 turn \n').
 
-next_player(human, ai):-
+next_player(human, ai-1):-
     write('\nAI turn \n').
     %play(). -> meter o jogador 2 a jogar
 
-next_player(ai, human):-
+next_player(ai-1, human):-
     write('\nHuman turn \n').
 
 %_______________________________________________________________________________________________________________________
@@ -23,17 +23,17 @@ game_cycle(GameState-Player, History-Index):-
     % congratulate(Winner).
 
 game_cycle(GameState-Player, History-Index):-
-
+%trace,
     repeat,
     
     length(GameState, Len),
-    choose_play(Option),
+    choose_play(Option, Player),
     single_play(Option, GameState, Player, NewGameState),
     
     check_history(History-Index, NewGameState, NewHistory-NewIndex),
     
-    next_player(Player, NewPlayer),
     write('\n --------CURRENT BOARD--------\n'),
+    next_player(Player, NewPlayer),
     p_m(NewGameState, Len), !,
 
     
@@ -57,24 +57,33 @@ fail.
     %has_six_head(GameState).
 
 
-choose_play(Option):-
+
+choose_play(Option, ai-1):-
+    write('\nWhat do you want to do?\n'),
+    write('1). Add new piece.\n'),
+    write('2). Move piece.\n'),
+    %random_between(1, 2, Option).
+    random_select(Option, [1], _),
+    write('Computer chose: Option '), write(Option), write('\n').
+
+choose_play(Option, Player):-
     repeat,
     get_play_input(Option),
     validate_play_input(Option), !.
 
-choose_play(Option):-
+choose_play(Option, Player):-
     repeat,
     get_play_input(Option),
     \+validate_play_input(Option), fail.
     
 
 single_play(1, Board, Player, NewBoard):-
-    write('-----NEW PIECE----- \n'),
+    write('\n-----NEW PIECE----- \n'),
     new_piece_play(Board, Player, NewBoard).
 
 
 single_play(2, Board, Player, NewBoard):-
-    write('-----MOVE PIECE----- \n'),
+    write('\n-----MOVE PIECE----- \n'),
     move_piece_play(Board, Player, NewBoard).
 
 
@@ -115,6 +124,11 @@ validate_play_input(Option):-
 
 
 
+new_piece_play(Board, ai-1, NewBoard):-
+    findall(X1-Y1, get_piece(Board, X1, Y1, empty), EmptyCoords),
+    random_select(X-Y, EmptyCoords, _),
+    add_new_piece(Board, X, Y, [1,a], NewBoard),
+    write('\nNew Piece coordinates: ('), write(X), write(','), write(Y), write(')\n').
 
 
 
@@ -172,6 +186,12 @@ validate_input(Board, Piece, Len, X, Y, NewBoard, Player):-
     write('Board is not empty. Please choose an empty square.\n'),
 
     fail.
+
+validate_input(Board, Piece, Len, X, Y, NewBoard, human):-
+    validate_new(Piece, Len, X,Y),
+    add_new_piece(Board, X,Y, [1,1], NewBoard),
+
+    write('Great choice!').
 
 validate_input(Board, Piece, Len, X, Y, NewBoard, 1):-
     validate_new(Piece, Len, X,Y),
