@@ -1,5 +1,5 @@
 :- consult('game.pl').
-
+:- use_module(library(random)).
 
 next_player(1,2):-
     write('\nPlayer 2 turn \n').
@@ -17,45 +17,52 @@ next_player(ai, human):-
 
 %_______________________________________________________________________________________________________________________
 
-game_cycle(GameState-Player, History-Index):-
-    write('winner\n'),
-    game_over(GameState, Winner),!.
-    % congratulate(Winner).
-
-game_cycle(GameState-Player, History-Index):-
-
-    repeat,
-    
-    length(GameState, Len),
-    choose_play(Option),
-    single_play(Option, GameState, Player, NewGameState),
-    
-    check_history(History-Index, NewGameState, NewHistory-NewIndex),
-    
-    next_player(Player, NewPlayer),
-    write('\n --------CURRENT BOARD--------\n'),
-    p_m(NewGameState, Len), !,
-
-    
-    game_cycle(NewGameState-NewPlayer, NewHistory-NewIndex).
-
-has_six_head([[[6|_]|_]|_]).
-has_six_head([[_|T]|_]) :- has_six_head([T|_]).
-has_six_head([_|T]) :- has_six_head(T).
-
 check_history(History-Index, GameState, NewHistory-NewIndex):-
-%trace,
+% trace,
     Previous is Index - 2,
     nth0(Previous, History, PreviousGameState),
-    PreviousGameState \= GameState
-    ; (write('\nInvalid Move! Please choose another move'), fail),
+    (PreviousGameState \= GameState
+    ; (write('\nInvalid Move! Please choose another move'), fail)),
     append(History, GameState, NewHistory),
     NewIndex is Index +1.
 
-game_over(GameState, Winner):-
-fail.
-    %has_six_head(GameState).
+%_______________________________________________________________________________________________________________________
 
+congratulate(1):-
+    write('\nPlayer 1 won! Congratulations! \n').
+
+congratulate(2):-
+    write('\nPlayer 2 won! Congratulations! \n').
+
+congratulate(ai):-
+    write('\nAI won! \n').
+
+congratulate(human):-
+    write('\nHuman won! \n').
+
+%_______________________________________________________________________________________________________________________
+
+game_cycle(GameState-Player, History-Index):-
+    game_over(GameState), !,
+    congratulate(Player).
+
+game_cycle(GameState-Player, History-Index):-
+    repeat,
+    length(GameState, Len),
+    choose_play(Option),
+    single_play(Option, GameState, Player, NewGameState),
+    check_history(History-Index, NewGameState, NewHistory-NewIndex),
+    write('\n --------CURRENT BOARD--------\n'),
+    next_player(Player, NewPlayer),
+    p_m(NewGameState, Len), !,
+    game_cycle(NewGameState-NewPlayer, NewHistory-NewIndex).
+
+%_______________________________________________________________________________________________________________________
+
+
+
+game_over(GameState):-
+    has_six_head(GameState).
 
 choose_play(Option):-
     repeat,
@@ -198,17 +205,17 @@ validate_new(Piece, Len, X,Y) :-
 
 
 move_piece_play(Board, Player, NewBoard):-
-%trace,
+% trace,
 
     change_piece_where(Input, Len, Board, Piece, X, Y),
 
     change_piece_to_where(Board, Piece, X, Y, Result),
 
     print_coordinates(Result, 1),
-    %trace,
 
     choose_where_to_move(Result, X2, Y2),
 
+    % trace,
     choose_how_many_disks(NDisks, Piece),
 
     move_piece(Board, X, Y, X2, Y2, NDisks, NewBoard),

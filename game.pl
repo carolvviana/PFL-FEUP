@@ -233,11 +233,12 @@ split(Piece, N, NewHead, NewTail) :-
 normalise([0], empty).
 normalise(Old,Old):- dif(Old, [0]).
 
+
 % move N disks from piece at (X1,Y1) to piece at (X2,Y2)
 % move_piece(+Board, +X1, +Y1, +X2, +Y2, +N, -NewBoard)
 move_piece(Board, X1, Y1, X2, Y2, N, NewBoard) :-
 
-    %trace,
+    trace,
     get_piece(Board, X1, Y1, Piece), %obter a peça na posição inicial
     nth0(0, Piece, T), %obter o número de discos da peça 
 
@@ -245,13 +246,13 @@ move_piece(Board, X1, Y1, X2, Y2, N, NewBoard) :-
    
     split(NPiece, N, NOld, NNew), %dividir a peça em duas
 
-
     T1 is T-N, %obter o tamanho da peça depois de mover
     Old = [T1|NOld], %append ao novo tamanho
 
     get_piece(Board, X2, Y2, NewPiece), %obter a peça na posição inicial
     nth0(0, NewPiece, X), %obter o número de discos da peça 
-    delete(NewPiece, X, NewPiece1), %remover primeiro elemento
+    % delete(NewPiece, X, NewPiece1), %remover primeiro elemento
+    removehead(NewPiece, NewPiece1),
     T2 is X+N, %obter o tamanho da peça depois de mover
 
     NewPiece2 = [T2|NewPiece1], %colocar o tamanho da peça depois de mover
@@ -262,8 +263,8 @@ move_piece(Board, X1, Y1, X2, Y2, N, NewBoard) :-
     normalise_piece(New, New1, 1), %normalizar a peça
 
     replace(Board, X1, Y1, Old1, NBoard), %colocar a peça na posição inicial
-    replace(NBoard, X2, Y2, New1, NewBoard). %colocar a peça na posição final
-
+    replace(NBoard, X2, Y2, New1, NewBoard), %colocar a peça na posição final
+    notrace.
 
 %______________________________________________________________________________
 
