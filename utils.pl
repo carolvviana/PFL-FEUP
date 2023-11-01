@@ -29,3 +29,13 @@ replace_row(Row, X, Piece, NewRow) :-
 
 % clear the terminal
 cls :- write('\33\[2J').
+
+has_six_head([]) :- fail. % If the board is empty, fail
+has_six_head([Row|Rest]) :- check_row(Row); has_six_head(Rest). % Check each row
+
+check_row([]) :- fail. % If the row is empty, fail
+check_row([Piece|Rest]) :- check_piece(Piece); check_row(Rest). % Check each piece
+
+check_piece(Piece) :- is_list(Piece), Piece = [6|_]. % If the piece is a list and its head is 6, succeed
+
+removehead([_|Tail], Tail).
