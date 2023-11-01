@@ -1,22 +1,102 @@
 :- consult('game.pl').
 
 
-change_player(1,2):-
-    write('Player 2 turn \n').
+next_player(1,2):-
+    write('\nPlayer 2 turn \n').
     %play(). -> meter o jogador 2 a jogar
 
-change_player(2,1):-
-    write('Player 1 turn \n').
+next_player(2,1):-
+    write('\nPlayer 1 turn \n').
+
+next_player(human, ai):-
+    write('\nAI turn \n').
+    %play(). -> meter o jogador 2 a jogar
+
+next_player(ai, human):-
+    write('\nHuman turn \n').
 
 %_______________________________________________________________________________________________________________________
 
+game_cycle(GameState-Player):-
+    repeat,
+    length(GameState, Len),
+    choose_play(Option),
+    single_play(Option, GameState, Player, NewGameState),
+    next_player(Player, NewPlayer),
+    write('\n --------CURRENT BOARD--------\n'),
+    p_m(NewGameState, Len), !,
+    game_cycle(NewGameState-NewPlayer).
+
+
+
+choose_play(Option):-
+    repeat,
+    get_play_input(Option),
+    validate_play_input(Option), !.
+
+choose_play(Option):-
+    repeat,
+    get_play_input(Option),
+    \+validate_play_input(Option), fail.
+    
+
+single_play(1, Board, Player, NewBoard):-
+    write('-----NEW PIECE----- \n'),
+    new_piece_play(Board, Player, NewBoard).
+
+
+single_play(2, Board, Player, NewBoard):-
+    write('-----MOVE PIECE----- \n'),
+    move_piece_play(Board, Player, NewBoard).
+
+
+get_play_input(Option):-
+    write('\nWhat do you want to do?\n'),
+    write('1). Add new piece.\n'),
+    write('2). Move piece.\n'),
+    read(Option).
+
+validate_play_input(1):-
+    write('Great choice!\n').
+
+validate_play_input(2):-
+    write('Great choice!\n').
+
+validate_play_input(Option):-
+    Option \= 1,
+    Option \= 2,
+    write('Invalid input. Please try again.\n'),
+    fail.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 % Predicate that allows player to choose where to add a new piece
 % encadeação_game(+Board, +Player, -NewBoard)
-encadeacao_game(Board, Player, NewBoard):-
+new_piece_play(Board, Player, NewBoard):-
 
     new_piece_where(Board, Len, _Piece, NewBoard, Player),
-    length(NewBoard, Len),
-    p_m(NewBoard, Len).
+    length(NewBoard, Len).
+    %p_m(NewBoard, Len).
 
 %_______________________________________________________________________________________________________________________
 
@@ -89,7 +169,7 @@ validate_new(Piece, Len, X,Y) :-
 %_______________________________________________________________________________________________________________________
 
 
-encadeacao(Board, Player):-
+move_piece_play(Board, Player, NewBoard):-
 %trace,
 
     change_piece_where(Input, Len, Board, Piece, X, Y),
@@ -105,9 +185,9 @@ encadeacao(Board, Player):-
 
     move_piece(Board, X, Y, X2, Y2, NDisks, NewBoard),
 
-    write('Great move!\n'),
+    write('Great move!\n').
 
-    p_m(NewBoard, Len).
+    %p_m(NewBoard, Len).
 
 change_piece_input(Piece):-
     write('Which piece do you want to change? \n'),
@@ -161,8 +241,8 @@ validate_change(Input, Len, Board, Piece, X, Y):-
 change_piece_to_where(Board, Piece, X, Y, Result):-
     nth0(0, Piece, N), %obter tamanho da peça
     valid_coords(Board, X, Y, N, Result),
+    dif(Result, []),
     write('Where do you want to move your piece?\n').
-
 
 
 validate_coords(Option, Result):-

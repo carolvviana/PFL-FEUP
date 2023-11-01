@@ -163,9 +163,69 @@ valid_coords(Board, X, Y, 5, Result):-
 %______________________________________________________________________________
 
 
+alphabetical(X) :- is_alpha(X).
+
+% alphabetical(1).
+% alphabetical(a).
+/*forall_custom(Lower, Upper, Goal) :-
+    Lower =< Upper,
+    call(Goal),
+    NewLower is Lower + 1,
+    forall_custom(NewLower, Upper, Goal).
+
+forall_custom(Lower, Upper, _) :-
+    Lower > Upper.
 
 
+normalise_piece(Piece, NormPiece):-
+    nth0(0, Piece, Size),
+    nth0(0, NormPiece, Size),
+    forall_custom(1, Size, (nth0(Index, Piece, Element),
+        (number(Element) -> 
+        Aux is Index, nth0(Index, NormPiece, Aux), write(Aux),nl
+        ; 
+        NewIndex is Index + 96,
+        char_code(Char, NewIndex),
+        nth0(Index, NormPiece, Char), write(Char),nl
+        ))).
 
+
+normalise_piece(Piece, NormPiece):-
+    nth0(0, Piece, Size),
+    nth0(0, NormPiece, Size),
+    
+    (between(1, Size, Index) -> 
+        (nth0(Index, Piece, Element),
+        (
+            number(Element) -> 
+                Aux is Index, nth0(Index, NormPiece, Aux)
+                ; 
+                NewIndex is Index + 96,
+                char_code(Char, NewIndex),
+                nth0(Index, NormPiece, Char)
+        )
+        )
+    ).*/
+
+normalise_piece(Piece, NormPiece, Index):-
+    nth0(0, Piece, Size),
+    Index =< Size,
+    nth0(Index, Piece, Element),
+    (number(Element) -> 
+        Aux is Index, replace_row(Piece, Index, Aux, AuxPiece)
+    ; 
+        NewIndex is Index + 96,
+        char_code(Char, NewIndex),
+        replace_row(Piece, Index, Char, AuxPiece)
+
+    ),
+    NIndex is Index + 1,
+    normalise_piece(AuxPiece, NormPiece, NIndex).
+    
+normalise_piece(Piece, Piece, Index):-
+    nth0(0, Piece, Size),
+    Index > Size.
+    
 split(Piece, N, NewHead, NewTail) :-
     length(NewTail, N),
     append(NewHead, NewTail, Piece).
@@ -177,12 +237,14 @@ normalise(Old,Old):- dif(Old, [0]).
 % move_piece(+Board, +X1, +Y1, +X2, +Y2, +N, -NewBoard)
 move_piece(Board, X1, Y1, X2, Y2, N, NewBoard) :-
 
+    %trace,
     get_piece(Board, X1, Y1, Piece), %obter a peça na posição inicial
     nth0(0, Piece, T), %obter o número de discos da peça 
 
     Piece = [_|NPiece], %remover primeiro elemento
    
     split(NPiece, N, NOld, NNew), %dividir a peça em duas
+
 
     T1 is T-N, %obter o tamanho da peça depois de mover
     Old = [T1|NOld], %append ao novo tamanho
@@ -197,9 +259,10 @@ move_piece(Board, X1, Y1, X2, Y2, N, NewBoard) :-
     append([NewPiece2, NNew], New), %colocar o tamanho da peça depois de mover
 
     normalise(Old, Old1), %normalizar a peça (passar par empty se for [0])
+    normalise_piece(New, New1, 1), %normalizar a peça
 
     replace(Board, X1, Y1, Old1, NBoard), %colocar a peça na posição inicial
-    replace(NBoard, X2, Y2, New, NewBoard). %colocar a peça na posição final
+    replace(NBoard, X2, Y2, New1, NewBoard). %colocar a peça na posição final
 
 
 %______________________________________________________________________________

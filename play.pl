@@ -171,12 +171,14 @@ game_cycle(GameState-Player):-
     display_game(NewGameState-NextPlayer), !,
     game_cycle(NewGameState-NextPlayer).
 
-choose_move(GameState, human, Move):-
-% interaction to select move
 next_player(1, 2).   
 next_player(2, 1).
 next_player(human, computer).
 next_player(computer, human).
+
+
+choose_move(GameState, human, Move):-
+% interaction to select move
 
 choose_move(GameState, computer-Level, Move):-
     valid_moves(GameState, Moves),
