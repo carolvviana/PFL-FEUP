@@ -34,22 +34,26 @@ congratulate(1):-
 congratulate(2):-
     write('\nPlayer 2 won! Congratulations! \n').
 
-congratulate(ai):-
-    write('\nAI won! \n').
+congratulate(ai-1):-
+    write('\nAI Level 1 won! \n').
+
+congratulate(ai-2):-
+    write('\nAI Level 2 won! \n').
 
 congratulate(human):-
-    write('\nHuman won! \n').
+    write('\nHuman won! Congratulations! \n').
 
 %_______________________________________________________________________________________________________________________
 
 game_cycle(GameState-Player, History-Index):-
     game_over(GameState), !,
-    congratulate(Player).
+    next_player(Player, NextPlayer),
+    congratulate(NextPlayer).
 
 game_cycle(GameState-Player, History-Index):-
     repeat,
     length(GameState, Len),
-    choose_play(Option, Player),
+    choose_play(GameState, Option, Player),
     single_play(Option, GameState, Player, NewGameState),
     check_history(History-Index, NewGameState, NewHistory-NewIndex),
     write('\n --------CURRENT BOARD--------\n'),
@@ -66,33 +70,34 @@ game_over(GameState):-
 
 
 
-choose_play(Option, ai-1):-
+choose_play(GameState, Option, ai-1):-
     write('\nWhat do you want to do?\n'),
     write('1). Add new piece.\n'),
     write('2). Move piece.\n'),
-    %random_between(1, 2, Option).
-    random_select(Option, [1], _),
+    findall(X-Y, (get_piece(GameState, X, Y, Piece), Piece \= empty), PieceCoords),
+    PieceCoords \= [] -> random_select(Option, [1,2], _); Option = 1, %se nao houver peças para mover so pode escolher opcao 1
     write('Computer chose: Option '), write(Option), write('\n').
 
-choose_play(Option, Player):-
+choose_play(GameState, Option, Player):-
     repeat,
     get_play_input(Option),
     validate_play_input(Option), !.
 
-choose_play(Option, Player):-
+choose_play(GameState, Option, Player):-
     repeat,
     get_play_input(Option),
     \+validate_play_input(Option), fail.
     
 
+
 single_play(1, Board, Player, NewBoard):-
     write('\n-----NEW PIECE----- \n'),
     new_piece_play(Board, Player, NewBoard).
 
-
 single_play(2, Board, Player, NewBoard):-
     write('\n-----MOVE PIECE----- \n'),
     move_piece_play(Board, Player, NewBoard).
+
 
 
 get_play_input(Option):-
@@ -223,6 +228,20 @@ validate_new(Piece, Len, X,Y) :-
     Y<Len.
 
 %_______________________________________________________________________________________________________________________
+move_piece_play(Board, ai-1, NewBoard):-
+% trace,
+    findall(X-Y, (get_piece(Board, X, Y, Piece), Piece \= empty), PieceCoords), 
+
+    random_select(X-Y, PieceCoords, _), %change piece where
+    get_piece(Board, X, Y, Piece),
+    nth0(0, Piece, N), %obter tamanho da peça
+    NN is N + 1,
+    random(1, NN, NDisks), %choose how many disks
+    valid_coords(Board, X, Y, N, Result), %change piece to where
+    random_select(X2-Y2, Result, _), %choose where to move
+    move_piece(Board, X, Y, X2, Y2, NDisks, NewBoard),
+    write('\nMoved piece to coordinates: ('), write(X), write(','), write(Y), write(')\n'),
+    notrace.
 
 
 move_piece_play(Board, Player, NewBoard):-

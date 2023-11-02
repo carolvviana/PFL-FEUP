@@ -234,7 +234,7 @@ normalise(Old,Old):- dif(Old, [0]).
 % move_piece(+Board, +X1, +Y1, +X2, +Y2, +N, -NewBoard)
 move_piece(Board, X1, Y1, X2, Y2, N, NewBoard) :-
 
-    trace,
+
     get_piece(Board, X1, Y1, Piece), %obter a peça na posição inicial
     nth0(0, Piece, T), %obter o número de discos da peça 
 
