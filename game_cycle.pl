@@ -98,7 +98,17 @@ choose_play(GameState, Option, ai-1):-
     write('1). Add new piece.\n'),
     write('2). Move piece.\n'),
     findall(X-Y, (get_piece(GameState, X, Y, Piece), Piece \= empty), PieceCoords),
-    PieceCoords \= [] -> random_select(Option, [1,2], _); Option = 1, %se nao houver peças para mover so pode escolher opcao 1
+    PieceCoords \= [], %se tiver peças no tabuleiro
+    random_select(Option, [1,2], _),
+    write('Computer chose: Option '), write(Option), write('\n').
+    
+choose_play(GameState, Option, ai-1):-
+    write('\nWhat do you want to do?\n'),
+    write('1). Add new piece.\n'),
+    write('2). Move piece.\n'),
+    findall(X-Y, (get_piece(GameState, X, Y, Piece), Piece \= empty), PieceCoords),
+    PieceCoords == [], %se não tiver peças no tabuleiro
+    Option = 1, %só pode adicionar peças
     write('Computer chose: Option '), write(Option), write('\n').
 
 choose_play(GameState, Option, Player):-
