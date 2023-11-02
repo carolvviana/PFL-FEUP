@@ -157,8 +157,9 @@ game_mode(5, SizeOfBoard) :- write('AI vs. AI -> hard').
 
 play_game:-
     initial_state(GameState-Player),
+    initial_history(History-Index),
     display_game(GameState-Player),
-    game_cycle(GameState-Player).
+    game_cycle(GameState-Player, History-Index).
 
 game_cycle(GameState-Player):-
     game_over(GameState, Winner), !,

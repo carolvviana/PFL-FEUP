@@ -1,22 +1,36 @@
 :- consult('game.pl').
 :- use_module(library(random)).
 
+% initial_state(BoardSize, GameState-Player):-
+%     initial_board(BoardSize, Board),
+%     initial_player(Player),
+%     GameState = Board.
+
+% play_game(BoardSize):-
+%     initial_state(BoardSize, GameState-Player),
+%     initial_history(History-Index),
+%     display_game(GameState-Player),
+%     game_cycle(GameState-Player, History-Index).
+
+
+% Predicate to change the turn of the players
+% next_player(+Player, -NextPlayer)
 next_player(1,2):-
     write('\nPlayer 2 turn \n').
-    %play(). -> meter o jogador 2 a jogar
 
 next_player(2,1):-
     write('\nPlayer 1 turn \n').
 
 next_player(human, ai-1):-
     write('\nAI turn \n').
-    %play(). -> meter o jogador 2 a jogar
 
 next_player(ai-1, human):-
     write('\nHuman turn \n').
 
 %_______________________________________________________________________________________________________________________
 
+% Predicate to check the history of the game (If a player's move cancels the other player's move, it is invalid)
+% check_history(+History-+Index, +GameState, -NewHistory-+NewIndex)
 check_history(History-Index, GameState, NewHistory-NewIndex):-
 % trace,
     Previous is Index - 2,
@@ -28,6 +42,8 @@ check_history(History-Index, GameState, NewHistory-NewIndex):-
 
 %_______________________________________________________________________________________________________________________
 
+% Congratulates the winner of the game
+% congratulate(+Player)
 congratulate(1):-
     write('\nPlayer 1 won! Congratulations! \n').
 
@@ -45,6 +61,8 @@ congratulate(human):-
 
 %_______________________________________________________________________________________________________________________
 
+% Game cycle
+% game_cycle(+GameState-+Player, +History-+Index)
 game_cycle(GameState-Player, History-Index):-
     game_over(GameState), !,
     next_player(Player, NextPlayer),
@@ -63,13 +81,18 @@ game_cycle(GameState-Player, History-Index):-
 
 %_______________________________________________________________________________________________________________________
 
-
-
+% Predicate to check if the game is over
+% Checks if there is a piece with size 6
+% game_over(+GameState)
 game_over(GameState):-
     has_six_head(GameState).
 
+%_______________________________________________________________________________________________________________________
 
-
+% Predicate to get the type of play: Add a new piece or move a piece
+% Option 1: Add a new piece
+% Option 2: Move a piece
+% choose_play(+GameState, -Option, +Player)
 choose_play(GameState, Option, ai-1):-
     write('\nWhat do you want to do?\n'),
     write('1). Add new piece.\n'),
@@ -83,13 +106,10 @@ choose_play(GameState, Option, Player):-
     get_play_input(Option),
     validate_play_input(Option), !.
 
-choose_play(GameState, Option, Player):-
-    repeat,
-    get_play_input(Option),
-    \+validate_play_input(Option), fail.
-    
+%_______________________________________________________________________________________________________________________
 
-
+% Predicate to do a single play, depending on the option chosen
+% single_play(+Option, +GameState, +Player, -NewGameState)
 single_play(1, Board, Player, NewBoard):-
     write('\n-----NEW PIECE----- \n'),
     new_piece_play(Board, Player, NewBoard).
@@ -98,61 +118,42 @@ single_play(2, Board, Player, NewBoard):-
     write('\n-----MOVE PIECE----- \n'),
     move_piece_play(Board, Player, NewBoard).
 
+%_______________________________________________________________________________________________________________________
 
-
+% Auxiliar predicate to show the options available and to read the user input
+% get_play_input(-Option)
 get_play_input(Option):-
     write('\nWhat do you want to do?\n'),
     write('1). Add new piece.\n'),
     write('2). Move piece.\n'),
     read(Option).
 
-validate_play_input(1):-
-    write('Great choice!\n').
+%_______________________________________________________________________________________________________________________
 
-validate_play_input(2):-
-    write('Great choice!\n').
-
+% Predicate to validate the user input
+% validate_play_input(+Option)
+validate_play_input(1).
+validate_play_input(2).
 validate_play_input(Option):-
     Option \= 1,
     Option \= 2,
     write('Invalid input. Please try again.\n'),
     fail.
 
+%_______________________________________________________________________________________________________________________
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+% Predicate that allows player to choose where to add a new piece
+% new_piece_play(+Board, +Player, -NewBoard)
 new_piece_play(Board, ai-1, NewBoard):-
     findall(X1-Y1, get_piece(Board, X1, Y1, empty), EmptyCoords),
     random_select(X-Y, EmptyCoords, _),
     add_new_piece(Board, X, Y, [1,a], NewBoard),
     write('\nNew Piece coordinates: ('), write(X), write(','), write(Y), write(')\n').
 
-
-
-% Predicate that allows player to choose where to add a new piece
-% encadeação_game(+Board, +Player, -NewBoard)
 new_piece_play(Board, Player, NewBoard):-
-
     new_piece_where(Board, Len, _Piece, NewBoard, Player),
     length(NewBoard, Len).
-    %p_m(NewBoard, Len).
-
+    
 %_______________________________________________________________________________________________________________________
 
 % Predicate that read the input of the player regarding where he wants to add a new piece
@@ -164,23 +165,13 @@ get_piece_input(Piece):-
 
 %_______________________________________________________________________________________________________________________    
 
-% Predicate that receives were player wants to add a new piece and adds it to the board if possible
+% Predicate that receives were the player wants to add a new piece and adds it to the board if possible
 % new_piece_where(+Board, -Len, -Piece, -NewBoard, +Player)
 new_piece_where(Board, Len, Piece, NewBoard, Player) :-
     repeat,
     get_piece_input(Piece),
-
     length(Board, Len),
-
     validate_input(Board, Piece, Len, X, Y, NewBoard, Player), !.
-
-new_piece_where(Board, Len, Piece, NewBoard, Player) :-
-    repeat,
-    get_piece_input(Piece),
-
-    length(Board, Len),
-
-    \+validate_input(Board, Piece, Len, X, Y, NewBoard, Player), fail.
 
 %_______________________________________________________________________________________________________________________
 
@@ -189,7 +180,6 @@ new_piece_where(Board, Len, Piece, NewBoard, Player) :-
 validate_input(Board, Piece, Len, X, Y, NewBoard, Player):-
     \+validate_new(Piece, Len, X,Y),
     write('Invalid input. Please try again.\n'),
-
     fail.
 
 validate_input(Board, Piece, Len, X, Y, NewBoard, Player):-
@@ -228,10 +218,11 @@ validate_new(Piece, Len, X,Y) :-
     Y<Len.
 
 %_______________________________________________________________________________________________________________________
-move_piece_play(Board, ai-1, NewBoard):-
-% trace,
-    findall(X-Y, (get_piece(Board, X, Y, Piece), Piece \= empty), PieceCoords), 
 
+% Predicate that allows player to choose where to move a piece
+% move_piece_play(+Board, +Player, -NewBoard)
+move_piece_play(Board, ai-1, NewBoard):-
+    findall(X-Y, (get_piece(Board, X, Y, Piece), Piece \= empty), PieceCoords), 
     random_select(X-Y, PieceCoords, _), %change piece where
     get_piece(Board, X, Y, Piece),
     nth0(0, Piece, N), %obter tamanho da peça
@@ -240,37 +231,26 @@ move_piece_play(Board, ai-1, NewBoard):-
     valid_coords(Board, X, Y, N, Result), %change piece to where
     random_select(X2-Y2, Result, _), %choose where to move
     move_piece(Board, X, Y, X2, Y2, NDisks, NewBoard),
-    write('\nMoved piece to coordinates: ('), write(X), write(','), write(Y), write(')\n'),
-    notrace.
-
+    write('\nMoved piece to coordinates: ('), write(X2), write(','), write(Y2), write(')\n').
 
 move_piece_play(Board, Player, NewBoard):-
-% trace,
-
     change_piece_where(Input, Len, Board, Piece, X, Y),
-
     change_piece_to_where(Board, Piece, X, Y, Result),
-
     print_coordinates(Result, 1),
-
     choose_where_to_move(Result, X2, Y2),
-
-    % trace,
     choose_how_many_disks(NDisks, Piece),
-
     move_piece(Board, X, Y, X2, Y2, NDisks, NewBoard),
-
     write('Great move!\n').
 
-    %p_m(NewBoard, Len).
+%_______________________________________________________________________________________________________________________
 
+% Predicate that allows player to choose which piece to move
+% change_piece_input
 change_piece_input(Piece):-
     write('Which piece do you want to change? \n'),
     write('Please submit answer as (X,Y) \n'),
-
     read(Piece).
 
-    
 change_piece_where(Input, Len, Board, Piece, X, Y):-
     repeat,     
     change_piece_input(Input),
@@ -278,15 +258,6 @@ change_piece_where(Input, Len, Board, Piece, X, Y):-
     length(Board, Len),
 
     validate_change(Input, Len, Board, Piece, X, Y), !.
-
-change_piece_where(Input, Len, Board, Piece, X, Y):-
-    repeat,     
-    change_piece_input(Input),
-
-    length(Board, Len),
-
-    \+validate_change(Input, Len, Board, Piece, X, Y), fail.
-
 
 validate_change(Input, Len, Board, Piece, X, Y):-
     \+validate_new(Input, Len, X, Y),
@@ -354,16 +325,6 @@ choose_how_many_disks(NDisks, Piece):-
     read(NDisks),
 
     validate_ndisks(NDisks, Piece),!.
-
-choose_how_many_disks(NDisks, Piece, Ret):-
-    repeat,
-    write('How many disks do you want to move?\n'),
-    read(NDisks),
-
-    \+validate_ndisks(NDisks, Piece),
-    fail.
-
-
 
 validate_ndisks(NDisks, Piece) :- % X e Y são as coordenadas da peça que a pessoa quer mover
     nth0(0, Piece, N), %obter tamanho da peça
