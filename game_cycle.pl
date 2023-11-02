@@ -16,16 +16,22 @@
 % Predicate to change the turn of the players
 % next_player(+Player, -NextPlayer)
 next_player(1,2):-
-    write('\nPlayer 2 turn \n').
+    write('\n\n------------Player 2 turn------------- \n').
 
 next_player(2,1):-
-    write('\nPlayer 1 turn \n').
+    write('\n\n------------Player 1 turn------------- \n').
 
 next_player(human, ai-1):-
-    write('\nAI turn \n').
+    write('\n\n------------AI turn------------- \n').
 
 next_player(ai-1, human):-
-    write('\nHuman turn \n').
+    write('\n\n------------Human turn------------- \n').
+
+next_player(ai1-1, ai2-1):-
+    write('\n\n------------AI Player 2 turn------------- \n').
+
+next_player(ai2-1, ai1-1):-
+    write('\n\n------------AI Player 1 turn------------- \n').
 
 %_______________________________________________________________________________________________________________________
 
@@ -59,6 +65,12 @@ congratulate(ai-2):-
 congratulate(human):-
     write('\nHuman won! Congratulations! \n').
 
+congratulate(ai1-1):-
+    write('\nAI Player 1 won! \n').
+
+congratulate(ai2-1):-
+    write('\nAI Player 2 won! \n').
+
 %_______________________________________________________________________________________________________________________
 
 % Game cycle
@@ -75,8 +87,9 @@ game_cycle(GameState-Player, History-Index):-
     single_play(Option, GameState, Player, NewGameState),
     check_history(History-Index, NewGameState, NewHistory-NewIndex),
     write('\n --------CURRENT BOARD--------\n'),
-    next_player(Player, NewPlayer),
     p_m(NewGameState, Len), !,
+    next_player(Player, NewPlayer),
+    %read(A),
     game_cycle(NewGameState-NewPlayer, NewHistory-NewIndex).
 
 %_______________________________________________________________________________________________________________________
@@ -93,25 +106,29 @@ game_over(GameState):-
 % Option 1: Add a new piece
 % Option 2: Move a piece
 % choose_play(+GameState, -Option, +Player)
-choose_play(GameState, Option, ai-1):-
-    write('\nWhat do you want to do?\n'),
-    write('1). Add new piece.\n'),
-    write('2). Move piece.\n'),
+
+choose_play(GameState, Option, Player):-
+    (Player = ai-1; Player = ai1-1; Player = ai2-1),
     findall(X-Y, (get_piece(GameState, X, Y, Piece), Piece \= empty), PieceCoords),
     PieceCoords \= [], %se tiver peças no tabuleiro
-    random_select(Option, [1,2], _),
-    write('Computer chose: Option '), write(Option), write('\n').
-    
-choose_play(GameState, Option, ai-1):-
     write('\nWhat do you want to do?\n'),
     write('1). Add new piece.\n'),
     write('2). Move piece.\n'),
-    findall(X-Y, (get_piece(GameState, X, Y, Piece), Piece \= empty), PieceCoords),
-    PieceCoords == [], %se não tiver peças no tabuleiro
-    Option = 1, %só pode adicionar peças
+    random_select(Option, [1,2], _),
     write('Computer chose: Option '), write(Option), write('\n').
 
 choose_play(GameState, Option, Player):-
+    (Player = ai-1; Player = ai1-1; Player = ai2-1),
+    findall(X-Y, (get_piece(GameState, X, Y, Piece), Piece \= empty), PieceCoords),
+    PieceCoords = [], %se não tiver peças no tabuleiro
+    write('\nWhat do you want to do?\n'),
+    write('1). Add new piece.\n'),
+    write('2). Move piece.\n'),
+    Option = 1,
+    write('Computer chose: Option '), write(Option), write('\n').
+
+choose_play(GameState, Option, Player):-
+    (Player \= ai-1, Player \= ai1-1, Player \= ai2-1),
     repeat,
     get_play_input(Option),
     validate_play_input(Option), !.
@@ -154,13 +171,21 @@ validate_play_input(Option):-
 
 % Predicate that allows player to choose where to add a new piece
 % new_piece_play(+Board, +Player, -NewBoard)
-new_piece_play(Board, ai-1, NewBoard):-
+new_piece_play(Board, ai1-1, NewBoard):-
+    findall(X1-Y1, get_piece(Board, X1, Y1, empty), EmptyCoords),
+    random_select(X-Y, EmptyCoords, _),
+    add_new_piece(Board, X, Y, [1,1], NewBoard),
+    write('\nNew Piece coordinates: ('), write(X), write(','), write(Y), write(')\n').
+
+new_piece_play(Board, Player, NewBoard):-
+    (Player = ai-1; Player = ai2-1),
     findall(X1-Y1, get_piece(Board, X1, Y1, empty), EmptyCoords),
     random_select(X-Y, EmptyCoords, _),
     add_new_piece(Board, X, Y, [1,a], NewBoard),
     write('\nNew Piece coordinates: ('), write(X), write(','), write(Y), write(')\n').
 
 new_piece_play(Board, Player, NewBoard):-
+    (Player \= ai-1, Player \= ai1-1, Player \= ai2-1),
     new_piece_where(Board, Len, _Piece, NewBoard, Player),
     length(NewBoard, Len).
     
@@ -231,7 +256,9 @@ validate_new(Piece, Len, X,Y) :-
 
 % Predicate that allows player to choose where to move a piece
 % move_piece_play(+Board, +Player, -NewBoard)
-move_piece_play(Board, ai-1, NewBoard):-
+move_piece_play(Board, Player, NewBoard):-
+%trace,
+    (Player = ai-1; Player = ai1-1; Player = ai2-1),
     findall(X-Y, (get_piece(Board, X, Y, Piece), Piece \= empty), PieceCoords), 
     random_select(X-Y, PieceCoords, _), %change piece where
     get_piece(Board, X, Y, Piece),
@@ -239,11 +266,14 @@ move_piece_play(Board, ai-1, NewBoard):-
     NN is N + 1,
     random(1, NN, NDisks), %choose how many disks
     valid_coords(Board, X, Y, N, Result), %change piece to where
+    %trace,
     random_select(X2-Y2, Result, _), %choose where to move
     move_piece(Board, X, Y, X2, Y2, NDisks, NewBoard),
+    write('\nChose piece at coordinates: ('), write(X), write(','), write(Y), write(')\n'),
     write('\nMoved piece to coordinates: ('), write(X2), write(','), write(Y2), write(')\n').
 
 move_piece_play(Board, Player, NewBoard):-
+    (Player \= ai-1, Player \= ai1-1, Player \= ai2-1),
     change_piece_where(Input, Len, Board, Piece, X, Y),
     change_piece_to_where(Board, Piece, X, Y, Result),
     print_coordinates(Result, 1),

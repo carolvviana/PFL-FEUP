@@ -259,8 +259,8 @@ move_piece(Board, X1, Y1, X2, Y2, N, NewBoard) :-
     normalise_piece(New, New1, 1), %normalizar a peça
 
     replace(Board, X1, Y1, Old1, NBoard), %colocar a peça na posição inicial
-    replace(NBoard, X2, Y2, New1, NewBoard), %colocar a peça na posição final
-    notrace.
+    replace(NBoard, X2, Y2, New1, NewBoard). %colocar a peça na posição final
+    %notrace.
 
 %______________________________________________________________________________
 
