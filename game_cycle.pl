@@ -16,42 +16,41 @@
 
 % Predicate to change the turn of the players
 % next_player(+Player, -NextPlayer)
-next_player(1,2):-
-    write('\n\n------------Player 2 turn------------- \n').
-
-next_player(2,1):-
-    write('\n\n------------Player 1 turn------------- \n').
-
-next_player(human-1, ai-1):-
-    write('\n\n------------AI turn------------- \n').
-
-next_player(ai-1, human-1):-
-    write('\n\n------------Human turn------------- \n').
-
-next_player(human-2, ai-2):-
-    write('\n\n------------AI Level 2 turn------------- \n').
-
-next_player(ai-2, human-2):-
-    write('\n\n------------Human turn------------- \n').
-
-next_player(ai1-1, ai2-1):-
-    write('\n\n------------AI Player 2 turn------------- \n').
-
-next_player(ai2-1, ai1-1):-
-    write('\n\n------------AI Player 1 turn------------- \n').
+next_player(1,2).
+next_player(2,1).
+next_player(human-1, ai-1).
+next_player(ai-1, human-1).
+next_player(human-2, ai-2).
+next_player(ai-2, human-2).
+next_player(ai1-1, ai2-1).
+next_player(ai2-1, ai1-1).
 
 %_______________________________________________________________________________________________________________________
 
-% Predicate to check the history of the game (If a player's move cancels the other player's move, it is invalid)
-% check_history(+History-+Index, +GameState, -NewHistory-+NewIndex)
-check_history(History-Index, GameState, NewHistory-NewIndex):-
-% trace,
-    Previous is Index - 2,
-    nth0(Previous, History, PreviousGameState),
-    (PreviousGameState \= GameState
-    ; (write('\nInvalid Move! Please choose another move'), fail)),
-    append(History, GameState, NewHistory),
-    NewIndex is Index +1.
+% Predicate to display the players turn
+write_player_turn(2):-
+    write('\n\n----------- Player 2 turn ------------ \n').
+
+write_player_turn(1):-
+    write('\n\n----------- Player 1 turn ------------ \n').
+
+write_player_turn(ai-1):-
+    write('\n\n-------------- AI turn --------------- \n').
+
+write_player_turn(human-1):-
+    write('\n\n------------- Human turn ------------- \n').
+
+write_player_turn(ai-2):-
+    write('\n\n----------- AI Level 2 turn ---------- \n').
+
+write_player_turn(human-2):-
+    write('\n\n------------- Human turn ------------- \n').
+
+write_player_turn(ai2-1):-
+    write('\n\n----------- AI Player 2 turn --------- \n').
+
+write_player_turn(ai1-1):-
+    write('\n\n----------- AI Player 1 turn --------- \n').
 
 %_______________________________________________________________________________________________________________________
 
@@ -69,7 +68,10 @@ congratulate(ai-1):-
 congratulate(ai-2):-
     write('\nAI Level 2 won! \n').
 
-congratulate(human):-
+congratulate(human-1):-
+    write('\nHuman won! Congratulations! \n').
+
+congratulate(human-2):-
     write('\nHuman won! Congratulations! \n').
 
 congratulate(ai1-1):-
@@ -80,21 +82,35 @@ congratulate(ai2-1):-
 
 %_______________________________________________________________________________________________________________________
 
+% Predicate to check the history of the game (If a player's move cancels the other player's move, it is invalid)
+% check_history(+History-+Index, +GameState, -NewHistory-+NewIndex)
+check_history(History-Index, GameState, NewHistory-NewIndex):-
+% trace,
+    Previous is Index - 2,
+    nth0(Previous, History, PreviousGameState),
+    (PreviousGameState \= GameState
+    ; (write('\nInvalid Move! Please choose another move'), fail)),
+    append(History, GameState, NewHistory),
+    NewIndex is Index +1.
+
+%_______________________________________________________________________________________________________________________
+
+
 % Game cycle
 % game_cycle(+GameState-+Player, +History-+Index)
 game_cycle(GameState-Player, History-Index):-
-    game_over(GameState), !,
-    next_player(Player, NextPlayer),
-    congratulate(NextPlayer).
+    game_over(GameState, Winner), !,
+    congratulate(Winner).
 
 game_cycle(GameState-Player, History-Index):-
-    repeat,
     length(GameState, Len),
+    repeat,
     choose_type(GameState, Player, NewGameState),
     check_history(History-Index, NewGameState, NewHistory-NewIndex),
-    write('\n --------CURRENT BOARD--------\n'),
+    write('\n------- CURRENT BOARD -------\n'),
     p_m(NewGameState, Len), !,
     next_player(Player, NewPlayer),
+    write_player_turn(NewPlayer),
     %read(A),
     game_cycle(NewGameState-NewPlayer, NewHistory-NewIndex).
 
@@ -102,12 +118,12 @@ game_cycle(GameState-Player, History-Index):-
 
 % Predicate to check if the game is over
 % Checks if there is a piece with size 6
-% game_over(+GameState)
-game_over(GameState):-
-    has_six_head(GameState).
+% game_over(+GameState, -Winner)
+game_over(GameState-Player, Winner):-
+    has_six_head(GameState), !,
+    next_player(Player, Winner).
 
 %_______________________________________________________________________________________________________________________
-
 
 choose_type(GameState, ai-2, NewGameState):-
     write('\n\nThinking.........\n'),

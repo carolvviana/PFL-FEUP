@@ -11,21 +11,21 @@ evaluate_board(Board, Value):-
     findall(Size, (member(Piece, Pieces), piece_size(Piece, Size)), Sizes),
     sumlist(Sizes, Sum), % sum of the sizes of all pieces on the board
 
-    Value is 0.8 * Largest + 0.1 * (Sum/NPieces) + 0.1 * NPieces.
+    Value is 0.6 * Largest + 0.3 * (Sum/NPieces) + 0.1 * NPieces.
 
     %length(Board, NRows),
     %p_m(Board, NRows),
     %write('\nValue: '), write(Value), nl.
 
-simulate_move([Type | Move], Board, NewBoard) :-
+% move(+GameState, +Move, -NewGameState).
+move(Board, [Type | Move], NewBoard) :-
     move_type(Type, Move, Board, NewBoard).
 
 move_type(place, [Piece, X, Y], Board, NewBoard) :-
     add_new_piece(Board, X, Y, Piece, NewBoard).
 
-move_type(move, [X-Y, NewX-NewY], Board, NewBoard) :-
-    get_piece(Board, X, Y, [Size | Piece]),
-    move_piece(Board, X, Y, NewX, NewY, Size, NewBoard).
+move_type(move, [N, X-Y, NewX-NewY], Board, NewBoard) :-
+    move_piece(Board, X, Y, NewX, NewY, N, NewBoard).
 
 % minimax(+GameState, +Player, +Type, +Depth, -Value)
 % Minimax algorithm with depth 2
@@ -37,7 +37,7 @@ minimax(GameState, Type, Depth, Value):-
 	setof(Val,
         (
             member(Move, ListOfMoves), 
-            simulate_move(Move, GameState, NewGameState), 
+            move(GameState, Move, NewGameState), 
             evaluate_board(NewGameState, Value1),
             minimax(NewGameState, NewType, NextDepth, Value2), 
             Val is Value1 + Value2
@@ -62,7 +62,7 @@ choose_move(GameState, ai-2, Move):-
         Value-Move,
         ( 
             member(Move, ListOfMoves), 
-            simulate_move(Move, GameState, NewGameState), 
+            move(GameState, Move, NewGameState), 
             evaluate_board(NewGameState, Value1),
             minimax(NewGameState, max, 1, Value2),
             Value is Value1 + Value2
@@ -81,7 +81,7 @@ choose_move(GameState, ai-2, Move):-
 % NewX-NewY is the coordinates of the new position of the piece in case of a move only
 % get_all_moves(+Board, -ListOfMoves)
 get_all_moves(Board, ListOfMoves):-
-    findall([move, X-Y, NewX-NewY], (get_piece(Board, X, Y, [Size | Piece]), [Size | Piece] \= empty, valid_coords(Board, X, Y, Size, Coords), member(NewX-NewY, Coords)), ListOfMoves2),
+    findall([move, N, X-Y, NewX-NewY], (get_piece(Board, X, Y, [Size | Piece]), [Size | Piece] \= empty, valid_coords(Board, X, Y, Size, Coords), member(NewX-NewY, Coords), between(1, Size, N)), ListOfMoves2),
     findall([place, [1,a], X, Y], get_piece(Board, X, Y, empty), ListOfMoves1),
     append(ListOfMoves1, ListOfMoves2, ListOfMoves).
     %ListOfMoves2 = ListOfMoves.
