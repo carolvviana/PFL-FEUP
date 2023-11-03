@@ -11,11 +11,11 @@ evaluate_board(Board, Value):-
     findall(Size, (member(Piece, Pieces), piece_size(Piece, Size)), Sizes),
     sumlist(Sizes, Sum), % sum of the sizes of all pieces on the board
 
-    Value is 0.5 * Largest + 0.3 * (Sum/NPieces) + 0.2 * NPieces,
+    Value is 0.8 * Largest + 0.1 * (Sum/NPieces) + 0.1 * NPieces.
 
-    length(Board, NRows),
-    p_m(Board, NRows),
-    write('\nValue: '), write(Value), nl.
+    %length(Board, NRows),
+    %p_m(Board, NRows),
+    %write('\nValue: '), write(Value), nl.
 
 simulate_move([Type | Move], Board, NewBoard) :-
     move_type(Type, Move, Board, NewBoard).
@@ -23,7 +23,7 @@ simulate_move([Type | Move], Board, NewBoard) :-
 move_type(place, [Piece, X, Y], Board, NewBoard) :-
     add_new_piece(Board, X, Y, Piece, NewBoard).
 
-move_type(move, [X, Y, NewX, NewY], Board, NewBoard) :-
+move_type(move, [X-Y, NewX-NewY], Board, NewBoard) :-
     get_piece(Board, X, Y, [Size | Piece]),
     move_piece(Board, X, Y, NewX, NewY, Size, NewBoard).
 
@@ -56,6 +56,7 @@ eval(max, Values, Value):- last(Values, Value).
 % choose_move(+GameState,+Player,+Level,-Move)
 % Bot greedy player. Makes a list of possible moves and select the one with the most points according minimax algorithm
 choose_move(GameState, ai-2, Move):-
+%trace,
 	get_all_moves(GameState, ListOfMoves),
     findall(
         Value-Move,
@@ -63,7 +64,7 @@ choose_move(GameState, ai-2, Move):-
             member(Move, ListOfMoves), 
             simulate_move(Move, GameState, NewGameState), 
             evaluate_board(NewGameState, Value1),
-            minimax(NewGameState, min, 1, Value2),
+            minimax(NewGameState, max, 1, Value2),
             Value is Value1 + Value2
         ),
         Pairs
@@ -81,6 +82,6 @@ choose_move(GameState, ai-2, Move):-
 % get_all_moves(+Board, -ListOfMoves)
 get_all_moves(Board, ListOfMoves):-
     findall([move, X-Y, NewX-NewY], (get_piece(Board, X, Y, [Size | Piece]), [Size | Piece] \= empty, valid_coords(Board, X, Y, Size, Coords), member(NewX-NewY, Coords)), ListOfMoves2),
-    % findall([place, [1,a], X, Y], get_piece(Board, X, Y, empty), ListOfMoves1),
-    % append(ListOfMoves1, ListOfMoves2, ListOfMoves).
-    ListOfMoves2 = ListOfMoves.
+    findall([place, [1,a], X, Y], get_piece(Board, X, Y, empty), ListOfMoves1),
+    append(ListOfMoves1, ListOfMoves2, ListOfMoves).
+    %ListOfMoves2 = ListOfMoves.

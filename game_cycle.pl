@@ -22,10 +22,16 @@ next_player(1,2):-
 next_player(2,1):-
     write('\n\n------------Player 1 turn------------- \n').
 
-next_player(human, ai-1):-
+next_player(human-1, ai-1):-
     write('\n\n------------AI turn------------- \n').
 
-next_player(ai-1, human):-
+next_player(ai-1, human-1):-
+    write('\n\n------------Human turn------------- \n').
+
+next_player(human-2, ai-2):-
+    write('\n\n------------AI Level 2 turn------------- \n').
+
+next_player(ai-2, human-2):-
     write('\n\n------------Human turn------------- \n').
 
 next_player(ai1-1, ai2-1):-
@@ -84,7 +90,7 @@ game_cycle(GameState-Player, History-Index):-
 game_cycle(GameState-Player, History-Index):-
     repeat,
     length(GameState, Len),
-    (GameState, Player, NewGameState),
+    choose_type(GameState, Player, NewGameState),
     check_history(History-Index, NewGameState, NewHistory-NewIndex),
     write('\n --------CURRENT BOARD--------\n'),
     p_m(NewGameState, Len), !,
@@ -104,6 +110,7 @@ game_over(GameState):-
 
 
 choose_type(GameState, ai-2, NewGameState):-
+    write('\n\nThinking.........\n'),
     choose_move(GameState, Player, [Type | Move]),
     move_type(Type, Move, GameState, NewGameState).
 
@@ -234,6 +241,12 @@ validate_input(Board, Piece, Len, X, Y, NewBoard, Player):-
     write('Board is not empty. Please choose an empty square.\n'),
 
     fail.
+
+validate_input(Board, Piece, Len, X, Y, NewBoard, human-2):-
+    validate_new(Piece, Len, X,Y),
+    add_new_piece(Board, X,Y, [1,1], NewBoard),
+
+    write('Great choice!').
 
 validate_input(Board, Piece, Len, X, Y, NewBoard, human):-
     validate_new(Piece, Len, X,Y),
