@@ -1,4 +1,4 @@
-:- consult('game.pl').
+:- consult('game_cycle.pl').
 
 % Valid menu options for the first menu
 
@@ -30,7 +30,6 @@ valid_board_size_input(N) :- N >= 2.
 
 % Predicates that represent valid menu options 
 first_menu_input(1) :-
-    write('\ninput 1\n'),
     play_menu.
 
 first_menu_input(2) :-
@@ -44,22 +43,18 @@ first_menu_input(3) :-
 % Predicates that represent valid menu options 
 % Player vs. Player
 second_menu_input(1) :-
-   write('\ninput 1\n'),
    board_size_menu(1).
 
 % Player vs. AI
 second_menu_input(2) :-
-    write('\ninput 2\n'),
-    nl,
     write('Choose the difficulty: \n'),
     write('\n1. Easy\n'),
     write('2. Hard\n'),
 
     write('\nPlease enter your choice: \n'),
 
-    get_char(UserInput), skip_line,
-    char_code(UserInput, Char),
-    Input is Char - 48,
+    repeat,
+    read(Input),
 
     valid_difficulty_input(Input),
     Answer is 1 + Input,
@@ -68,18 +63,14 @@ second_menu_input(2) :-
 
 % AI vs. AI
 second_menu_input(3) :-
-    write('\ninput 3\n'),
-
-    nl,
     write('Choose the difficulty: \n'),
     write('\n1. Easy\n'),
     write('2. Hard\n'),
 
     write('\nPlease enter your choice: \n'),
 
-    get_char(UserInput), skip_line,
-    char_code(UserInput, Char),
-    Input is Char - 48,
+    repeat,
+    read(Input),
 
     valid_difficulty_input(Input),
     Answer is 3 + Input,
@@ -92,7 +83,7 @@ second_menu_input(4) :-
 %_________________________________________
 
 % Predicate that represents valid menu options for the first menu
-play :-
+display_menu :-
     write('\nSIX-MAKING\n'),
     write('\n1. Play Game\n'),
     write('2. Rules\n'),
@@ -101,10 +92,8 @@ play :-
     write('\nPlease enter your choice: \n'),
 
     %read(Input),
-    get_char(UserInput), skip_line,
-    char_code(UserInput, Char),
-    Input is Char - 48,
-    write(Input), nl,
+    repeat,
+    read(Input),
     valid_first_menu_input(Input),
     first_menu_input(Input).
 
@@ -120,10 +109,9 @@ play_menu :-
 
     write('\nPlease enter your choice: \n'),
 
-    %read(Input),
-    get_char(UserInput), skip_line,
-    char_code(UserInput, Char),
-    Input is Char - 48,
+    repeat,
+    read(Input),
+
     valid_second_menu_input(Input),
     second_menu_input(Input).
 
@@ -138,22 +126,39 @@ play_menu :-
 board_size_menu(TypeOfGame) :-
     write('\nChoose the board size: (N)\n'),
 
-    get_char(UserInput), skip_line,
-    char_code(UserInput, Char),
-    Input is Char - 48,
+    repeat, 
+    read(Input),
+
     % Input -> Size of the board
     valid_board_size_input(Input),
     game_mode(TypeOfGame, Input).
 
 %_________________________________________
 
+initial_game_state(N, List)  :- 
+    length(AuxList, N), 
+    length(List, N), 
+    maplist(=(empty), AuxList),
+    maplist(=(AuxList), List).
+
+initial_history([[],[]]-2).
+
 % Predicate that represents the valid menu options for the fourth menu - Select difficulty
-game_mode(1, SizeOfBoard) :- write('Player vs. Player').
-game_mode(2, SizeOfBoard) :- write('Player vs. AI -> easy').
+game_mode(1, SizeOfBoard) :- 
+    initial_game_state(SizeOfBoard, InitialGameState),
+    initial_history(InitialHistory-Index),
+    write('\n\n----------------------LET\'S BEGIN--------------------\n\n'),
+    write('                     Initial Board                     \n'),
+    p_m(InitialGameState, SizeOfBoard), nl,
+    game_cycle(InitialGameState-1, InitialHistory-Index).
+
+game_mode(2, SizeOfBoard) :- 
+    write('----------------------LET\'S BEGIN--------------------'),
+    write('Player vs. AI -> easy').
 game_mode(3, SizeOfBoard) :- write('Player vs. AI -> hard').
 game_mode(4, SizeOfBoard) :- write('AI vs. AI -> easy').
-game_mode(5, SizeOfBoard) :- write('AI vs. AI -> hard').
-    
+%game_mode(5, SizeOfBoard) :- write('AI vs. AI -> hard').
+ /*   
 
 play_game:-
     initial_state(GameState-Player),
@@ -192,5 +197,9 @@ valid_moves(GameState, Moves):-
     findall(Move, move(GameState, Move, NewState), Moves).
 
 choose_move(2, GameState, Moves, Move):-
-    setof(Value-Mv, NewState^( member(Mv, Moves), move(GameState, Mv, NewState), evaluate_board(NewState, Value) ), [_V-Move|_]).
-% evaluate_board assumes lower value is better
+
+    setof(Value-Mv, NewState^( member(Mv, Moves),
+    move(GameState, Mv, NewState),
+    evaluate_board(NewState, Value) ), [_V-Move|_]).
+% evaluate_board assumes lower value is better*/
+
