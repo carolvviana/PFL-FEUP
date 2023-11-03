@@ -84,8 +84,7 @@ game_cycle(GameState-Player, History-Index):-
 game_cycle(GameState-Player, History-Index):-
     repeat,
     length(GameState, Len),
-    choose_play(GameState, Option, Player),
-    single_play(Option, GameState, Player, NewGameState),
+    (GameState, Player, NewGameState),
     check_history(History-Index, NewGameState, NewHistory-NewIndex),
     write('\n --------CURRENT BOARD--------\n'),
     p_m(NewGameState, Len), !,
@@ -103,11 +102,21 @@ game_over(GameState):-
 
 %_______________________________________________________________________________________________________________________
 
+
+choose_type(GameState, ai-2, NewGameState):-
+    choose_move(GameState, Player, [Type | Move]),
+    move_type(Type, Move, GameState, NewGameState).
+
+choose_type(GameState, Player, NewGameState):-
+    choose_play(GameState, Option, Player),
+    single_play(Option, GameState, Player, NewGameState).
+
+%_______________________________________________________________________________________________________________________
+
 % Predicate to get the type of play: Add a new piece or move a piece
 % Option 1: Add a new piece
 % Option 2: Move a piece
 % choose_play(+GameState, -Option, +Player)
-
 choose_play(GameState, Option, Player):-
     (Player = ai-1; Player = ai1-1; Player = ai2-1),
     findall(X-Y, (get_piece(GameState, X, Y, Piece), Piece \= empty), PieceCoords),
