@@ -39,3 +39,14 @@ check_row([Piece|Rest]) :- check_piece(Piece); check_row(Rest). % Check each pie
 check_piece(Piece) :- is_list(Piece), Piece = [6|_]. % If the piece is a list and its head is 6, succeed
 
 removehead([_|Tail], Tail).
+
+piece_size(Piece, Size) :- Piece = [Size|_].
+
+list_max([P|T], Max) :- list_max(T, P, Max).
+
+list_max([], P, P).
+list_max([H|T], P, O) :-
+    (    H > P
+    ->   list_max(T, H, O)
+    ;    list_max(T, P, O)
+    ).

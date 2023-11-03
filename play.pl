@@ -192,7 +192,5 @@ valid_moves(GameState, Moves):-
     findall(Move, move(GameState, Move, NewState), Moves).
 
 choose_move(2, GameState, Moves, Move):-
-    setof(Value-Mv, NewState^( member(Mv, Moves),
-    move(GameState, Mv, NewState),
-    evaluate_board(NewState, Value) ), [_V-Move|_]).
+    setof(Value-Mv, NewState^( member(Mv, Moves), move(GameState, Mv, NewState), evaluate_board(NewState, Value) ), [_V-Move|_]).
 % evaluate_board assumes lower value is better

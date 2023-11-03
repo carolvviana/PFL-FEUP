@@ -1,4 +1,5 @@
 :- consult('game.pl').
+:- consult('ai.pl').
 :- use_module(library(random)).
 
 % initial_state(BoardSize, GameState-Player):-
