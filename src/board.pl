@@ -79,4 +79,18 @@ p_c(Piece):-
 
 %_______________________________________________________
 
+% predicate to initialize the game state with size N
+% initial_state(+Size, -GameState)
+initial_state(N, List)  :- 
+    length(AuxList, N),
+    length(List, N), 
+    maplist(=(empty), AuxList),
+    maplist(=(AuxList), List).
 
+% predicate to display the game state
+% display_game(+GameState) 
+display_game(GameState):-
+    length(GameState, Len),
+    p_m(GameState, Len).
+
+%_______________________________________________________

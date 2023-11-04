@@ -146,6 +146,7 @@ queen_coords(Board, X1, Y1, Result):-
 
 % get all possible coords for a piece of size N
 % used by the game itself to get coords, like an API, sort of
+% valid_coords(+Board, +X, +Y, +N, -Result)
 valid_coords(Board, X, Y, 1, Result):-
     pawn_coords(Board, X, Y, Result).
 

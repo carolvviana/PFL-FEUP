@@ -36,7 +36,7 @@ has_six_head([Row|Rest]) :- check_row(Row); has_six_head(Rest). % Check each row
 check_row([]) :- fail. % If the row is empty, fail
 check_row([Piece|Rest]) :- check_piece(Piece); check_row(Rest). % Check each piece
 
-check_piece(Piece) :- is_list(Piece), [Head|Piece], Head >= 6. % If the piece is a list and its head is 6, succeed
+check_piece([Head|Piece]) :- is_list([Head|Piece]), Head >= 6. % If the piece is a list and its head is 6, succeed
 
 removehead([_|Tail], Tail).
 

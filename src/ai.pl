@@ -3,8 +3,8 @@
 :- consult('game.pl').
 
 % evaluate the board, used for minimax algorithm
-% evaluate_board(+Board, -Value)
-evaluate_board(Board, Value):-
+% value(+Board, -Value)
+value(Board, Value):-
     findall(Piece, (member(Row, Board), member(Piece, Row), Piece \= empty), Pieces),
     length(Pieces, NPieces), % number of pieces on the board
     largest_piece(Pieces, Largest), % size of the largest piece on the board
@@ -33,12 +33,12 @@ minimax(_, _, 2, 0):- !.
 minimax(GameState, Type, Depth, Value):-
 	swap_minimax(Type, NewType),
     NextDepth is Depth + 1,
-	get_all_moves(GameState, ListOfMoves),
+	valid_moves(GameState, ListOfMoves),
 	setof(Val,
         (
             member(Move, ListOfMoves), 
             move(GameState, Move, NewGameState), 
-            evaluate_board(NewGameState, Value1),
+            value(NewGameState, Value1),
             minimax(NewGameState, NewType, NextDepth, Value2), 
             Val is Value1 + Value2
         ),
@@ -57,13 +57,13 @@ eval(max, Values, Value):- last(Values, Value).
 % Bot greedy player. Makes a list of possible moves and select the one with the most points according minimax algorithm
 choose_move(GameState, ai-2, Move):-
 %trace,
-	get_all_moves(GameState, ListOfMoves),
+	valid_moves(GameState, ListOfMoves),
     findall(
         Value-Move,
         ( 
             member(Move, ListOfMoves), 
             move(GameState, Move, NewGameState), 
-            evaluate_board(NewGameState, Value1),
+            value(NewGameState, Value1),
             minimax(NewGameState, max, 1, Value2),
             Value is Value1 + Value2
         ),
@@ -79,8 +79,8 @@ choose_move(GameState, ai-2, Move):-
 % Type is either place or move
 % X-Y is the coordinates of the piece to be placed or moved
 % NewX-NewY is the coordinates of the new position of the piece in case of a move only
-% get_all_moves(+Board, -ListOfMoves)
-get_all_moves(Board, ListOfMoves):-
+% valid_moves(+Board, -ListOfMoves)
+valid_moves(Board, ListOfMoves):-
     findall([move, N, X-Y, NewX-NewY], (get_piece(Board, X, Y, [Size | Piece]), [Size | Piece] \= empty, valid_coords(Board, X, Y, Size, Coords), member(NewX-NewY, Coords), between(1, Size, N)), ListOfMoves2),
     findall([place, [1,a], X, Y], get_piece(Board, X, Y, empty), ListOfMoves1),
     append(ListOfMoves1, ListOfMoves2, ListOfMoves).

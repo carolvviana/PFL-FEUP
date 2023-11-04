@@ -99,19 +99,17 @@ check_history(History-Index, GameState, NewHistory-NewIndex):-
 % Game cycle
 % game_cycle(+GameState-+Player, +History-+Index)
 game_cycle(GameState-Player, History-Index):-
-    game_over(GameState, Winner), !,
+    game_over(GameState-Player, Winner), !,
     congratulate(Winner).
 
 game_cycle(GameState-Player, History-Index):-
-    length(GameState, Len),
     repeat,
     choose_type(GameState, Player, NewGameState),
     check_history(History-Index, NewGameState, NewHistory-NewIndex),
     write('\n------- CURRENT BOARD -------\n'),
-    p_m(NewGameState, Len), !,
     next_player(Player, NewPlayer),
     write_player_turn(NewPlayer),
-    %read(A),
+    display_game(GameState), !,
     game_cycle(NewGameState-NewPlayer, NewHistory-NewIndex).
 
 %_______________________________________________________________________________________________________________________
@@ -135,6 +133,9 @@ choose_type(GameState, Player, NewGameState):-
     single_play(Option, GameState, Player, NewGameState).
 
 %_______________________________________________________________________________________________________________________
+
+choose_move(GameState, ai, 2, Move):-
+
 
 % Predicate to get the type of play: Add a new piece or move a piece
 % Option 1: Add a new piece

@@ -135,17 +135,11 @@ board_size_menu(TypeOfGame) :-
 
 %_________________________________________
 
-initial_game_state(N, List)  :- 
-    length(AuxList, N), 
-    length(List, N), 
-    maplist(=(empty), AuxList),
-    maplist(=(AuxList), List).
-
 initial_history([[],[]]-2).
 
 % Predicate that represents the valid menu options for the fourth menu - Select difficulty
 game_mode(1, SizeOfBoard) :- 
-    initial_game_state(SizeOfBoard, InitialGameState),
+    initial_state(SizeOfBoard, InitialGameState),
     initial_history(InitialHistory-Index),
     write('\n\n----------------------LET\'S BEGIN--------------------\n\n'),
     write('                     Initial Board                     \n'),
