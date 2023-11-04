@@ -134,9 +134,6 @@ choose_type(GameState, Player, NewGameState):-
 
 %_______________________________________________________________________________________________________________________
 
-choose_move(GameState, ai, 2, Move):-
-
-
 % Predicate to get the type of play: Add a new piece or move a piece
 % Option 1: Add a new piece
 % Option 2: Move a piece
