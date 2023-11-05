@@ -18,10 +18,13 @@
 % next_player(+Player, -NextPlayer)
 next_player(1,2).
 next_player(2,1).
+
 next_player(human-1, ai-1).
 next_player(ai-1, human-1).
+
 next_player(human-2, ai-2).
 next_player(ai-2, human-2).
+
 next_player(ai1-1, ai2-1).
 next_player(ai2-1, ai1-1).
 
@@ -125,8 +128,8 @@ game_over(GameState-Player, Winner):-
 
 choose_type(GameState, ai-2, NewGameState):-
     write('\n\nThinking.........\n'),
-    choose_move(GameState, Player, [Type | Move]),
-    move_type(Type, Move, GameState, NewGameState).
+    choose_move(GameState, ai, 2,[Type | Move]),
+    move(GameState, [Type | Move], NewGameState).
 
 choose_type(GameState, Player, NewGameState):-
     choose_play(GameState, Option, Player),

@@ -3,9 +3,9 @@
 :- consult('game.pl').
 
 % evaluate the board, used for minimax algorithm
-% value(+Board, -Value)
-value(Board, Value):-
-    findall(Piece, (member(Row, Board), member(Piece, Row), Piece \= empty), Pieces),
+% value(+GameState, +Player, -Value)
+value(GameState, _, Value):-
+    findall(Piece, (member(Row, GameState), member(Piece, Row), Piece \= empty), Pieces),
     length(Pieces, NPieces), % number of pieces on the board
     largest_piece(Pieces, Largest), % size of the largest piece on the board
     findall(Size, (member(Piece, Pieces), piece_size(Piece, Size)), Sizes),
@@ -38,7 +38,7 @@ minimax(GameState, Type, Depth, Value):-
         (
             member(Move, ListOfMoves), 
             move(GameState, Move, NewGameState), 
-            value(NewGameState, Value1),
+            value(NewGameState, _, Value1),
             minimax(NewGameState, NewType, NextDepth, Value2), 
             Val is Value1 + Value2
         ),
@@ -55,7 +55,7 @@ eval(max, Values, Value):- last(Values, Value).
 
 % choose_move(+GameState,+Player,+Level,-Move)
 % Bot greedy player. Makes a list of possible moves and select the one with the most points according minimax algorithm
-choose_move(GameState, ai-2, Move):-
+choose_move(GameState, ai, 2, Move):-
 %trace,
 	valid_moves(GameState, ListOfMoves),
     findall(
@@ -63,7 +63,7 @@ choose_move(GameState, ai-2, Move):-
         ( 
             member(Move, ListOfMoves), 
             move(GameState, Move, NewGameState), 
-            value(NewGameState, Value1),
+            value(NewGameState, _, Value1),
             minimax(NewGameState, max, 1, Value2),
             Value is Value1 + Value2
         ),

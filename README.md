@@ -53,7 +53,9 @@ The Game State is composed of two parts: the Board and the Player currently taki
 
   * Each **Piece** is then represented as another list: this list being composed of the **height** of the tower (in the head of the list) follow by the pieces of the tower ifself. Colors are represented using numbers `1` to `6` to represent white pieces, and letters `a` to `f` to represent black pieces. Given this, an example tower would be represented as `[4, 1, b, c, 4]`.
 
-  * The **Board** and the **Player** are joined together to form the **Game State**.
+  * The **Board** and the **Player** are joined together to form the **Game State** (Board-Player).
+
+  In this game, there are no captured piece, and both players can move all pieces, so that information didn't need to be represented.
 
     Initial Board Example
   
@@ -78,15 +80,20 @@ The game visualization and interaction as separated into different modules: `pla
 
   ![Alt text](images/image4.png)
 
-  `first_menu_input(+Input)` - Validates the input of the main menu
+  `first_menu_input(+Input)` - Validates the input of the main menu and calls the chosen menu
 
   `play_menu` - Shows the play menu of the game where the user can select the game mode
 
   ![Alt text](./images/image5.png)
-
-  `valid_first_menu_input(+Input)` - Validates the input of the play menu
+  
 
   This pattern repeats for the other menus of the game where its needed to select the size of the board of the game or the difficulty of the AI.
+
+  The predicates used for these menus are:
+  - `second_menu_input(+Input)` - Validates the input of the play menu and allows the user to choose the difficulty of the game
+  - ```board_size_menu(+TypeOfGame)``` and ```valid_board_size_input(+Input) ```
+
+  The last predicate called is `game_mode(+TypeOfGame, +SizeOfBoard)` that displays the initial state of the game and starts the game cycle.
   
 * #### board.pl
 
@@ -100,21 +107,32 @@ The game visualization and interaction as separated into different modules: `pla
 
 #### Move Validation and Execution
   
-  During the game, the user has the option to choose two types of move: `place` and `move`. Because of this we has to adapt the predicates to account for this, so there are two lower level predicates responsible for placing and moving pieces on the board:
+  During the game, the user has the option to choose two types of moves: `place` and `move`. Because of this we had to adapt the predicates to account for this, so there are two lower level predicates responsible for placing and moving pieces on the board:
 
-  * `add_new_piece(+Board, +X, +Y, +Piece, -NewBoard)` - Which takes a piece and the coordinates of the board and places it on the board, returning the new board
+  * `add_new_piece(+Board, +X, +Y, +Piece, -NewBoard)` - Which takes a piece and the coordinates where you want it to be and places it on the board, returning the new board
+      * The predicate checks if the desired coordinates are empty (validation) and, if so, places the piece.
 
-  * `move_piece(+Board, +X1, +Y1, +X2, +Y2, +N, -NewBoard)` - Which takes the coordinates of the piece to be moved. It also has an argument to specify the number of pieces to be moved, if the piece has a height of more than 1. It returns the new board and the piece that was moved.
+  * `move_piece(+Board, +X1, +Y1, +X2, +Y2, +N, -NewBoard)` - Which takes the coordinates of the piece to be moved (X1,Y1) and the coordinates of where you want it to move (X2,Y2). It also has an argument to specify the number of pieces to be moved (N), if the piece has a height of more than 1. It returns the new board with the moved piece.
 
   But before these predicates are called, the user input is validated by the following predicates:
 
   * `valid_coords(+Board, +X, +Y, +N, -Result)` - Which takes the height of the piece as an argument and returns the possible coordinates of the board where the piece can be moved to. This result list will be used to validate if a move if valid or not.
 
-  * `get_piece(+Board, +X, +Y, ?Piece)` - Which was originally made to get the piece on the board given the coordinates of the board, can be used to verify if a `place` move is possible on those coordinates by giving the piece `empty` as an argument instead of being the return of the predicate.
+  * `get_piece(+Board, +X, +Y, ?Piece)`
+     - To move a piece: ensure that the piece is not moved to an empty square on the board.
+     - To place a new piece: verify if a `place` move is possible on those coordinates by giving the piece empty as an argument
 
-  After the user input has been validated, we can now call the predicate responsible doing to the move:
+
+  
+  The above predicates are the "core" predicates that are responsible for, ultimately, moving the pieces. However, depending on which game mode we are on, the way the move is decided varies.
+
+  AI Level 2 player uses the following predicate:
 
   * `move(+GameState, +Move, -NewGameState)` - Which takes the current game state, the move to be made and returns the new game state.
+
+  The other players (Human and AI) use the following predicate:
+  
+  * `single_play(+Option, +GameState, +Player, -NewGameState)` - Which takes the option chose by the user, or the option chosen randomly by the AI player on Level 1 and either places a piece or moves a piece, returning the new game state.
 
 #### List of Valid Moves
 

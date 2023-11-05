@@ -1,21 +1,5 @@
 :- consult('game_cycle.pl').
 
-% Valid menu options for the first menu
-
-valid_first_menu_input(1).
-valid_first_menu_input(2).
-valid_first_menu_input(3).
-
-%_________________________________________
-
-% Valid menu options for the second menu
-
-valid_second_menu_input(1).
-valid_second_menu_input(2).
-valid_second_menu_input(3).
-valid_second_menu_input(4).
-%valid_second_menu_input(N) :- fail.
-
 
 %_________________________________________
 
@@ -94,7 +78,6 @@ display_menu :-
     %read(Input),
     repeat,
     read(Input),
-    valid_first_menu_input(Input),
     first_menu_input(Input).
 
 %_________________________________________
@@ -112,7 +95,6 @@ play_menu :-
     repeat,
     read(Input),
 
-    valid_second_menu_input(Input),
     second_menu_input(Input).
 
 %_________________________________________
@@ -147,8 +129,26 @@ game_mode(1, SizeOfBoard) :-
     game_cycle(InitialGameState-1, InitialHistory-Index).
 
 game_mode(2, SizeOfBoard) :- 
-    write('----------------------LET\'S BEGIN--------------------'),
-    write('Player vs. AI -> easy').
-game_mode(3, SizeOfBoard) :- write('Player vs. AI -> hard').
-game_mode(4, SizeOfBoard) :- write('AI vs. AI -> easy').
-%game_mode(5, SizeOfBoard) :- write('AI vs. AI -> hard').
+    initial_state(SizeOfBoard, InitialGameState),
+    initial_history(InitialHistory-Index),
+    write('\n\n----------------------LET\'S BEGIN--------------------\n\n'),
+    write('                     Initial Board                     \n'),
+    p_m(InitialGameState, SizeOfBoard), nl,
+    game_cycle(InitialGameState-(human-1), InitialHistory-Index).
+
+game_mode(3, SizeOfBoard) :- 
+    initial_state(SizeOfBoard, InitialGameState),
+    initial_history(InitialHistory-Index),
+    write('\n\n----------------------LET\'S BEGIN--------------------\n\n'),
+    write('                     Initial Board                     \n'),
+    p_m(InitialGameState, SizeOfBoard), nl,
+    game_cycle(InitialGameState-(human-2), InitialHistory-Index).
+
+game_mode(4, SizeOfBoard) :- 
+    initial_state(SizeOfBoard, InitialGameState),
+    initial_history(InitialHistory-Index),
+    write('\n\n----------------------LET\'S BEGIN--------------------\n\n'),
+    write('                     Initial Board                     \n'),
+    p_m(InitialGameState, SizeOfBoard), nl,
+    game_cycle(InitialGameState-(ai1-1), InitialHistory-Index).
+
