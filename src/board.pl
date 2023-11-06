@@ -1,4 +1,4 @@
-% predicate to print the separator between lines of the matrix
+% Predicate to print the separator between lines of the matrix
 % print_separator(+N)
 print_separator(N):-
     write('  '),
@@ -9,7 +9,7 @@ print_separator(N):-
 
 %_______________________________________________________
 
-% predicate to print the horizontal coordinates (X) of the matrix
+% Predicate to print the horizontal coordinates (X) of the matrix
 % print_horizontal_coords(+N, +M)
 print_horizontal_coords(N, M):-
     M < N,
@@ -20,9 +20,9 @@ print_horizontal_coords(N, M):-
 
 %_______________________________________________________
 
-% prints the matrix of the game
+% Prints the matrix of the game
 % p_m(+Matrix, +N)
-p_m([L|T], N):-
+p_m([_L|_T], N):-
     nl,
     write('  '),
     print_horizontal_coords(N, 0),
@@ -33,7 +33,7 @@ p_m([L|T], N):-
 
 %_______________________________________________________
 
-% prints the matrix of the game with coordinates
+% Prints the matrix of the game with coordinates
 % p_m(+Matrix, +N, +M)
 p_m([], N, _):-
     nl,
@@ -52,7 +52,7 @@ p_m([L|T], N, M):-
 
 %_______________________________________________________
 
-%prints a line of the matrix and coords vertically
+%Prints a line of the matrix and coords vertically
 % p_l(+Line)
 p_l([]).
 p_l([C|L]):-
@@ -61,8 +61,8 @@ p_l([C|L]):-
 
 %_______________________________________________________
 
-% prints the top piece of a tower in the matrix
-% each cell is represented as n-X, where n is the height of the tower and X is in the format 1-b-3-...
+% Prints the top piece of a tower in the matrix
+% each cell is represented as [n,X], where n is the height of the tower and X is in the format [1,b,3,...]
 % where each number/letter (1-6)/(a-f) represents a the height of the tower to the player with that number/letter.
 % Numbers and letters are used to differentiate the colors of the pieces
 % p_c(+Cell)
@@ -79,7 +79,7 @@ p_c(Piece):-
 
 %_______________________________________________________
 
-% predicate to initialize the game state with size N
+% Predicate to initialize the game state with size N
 % initial_state(+Size, -GameState)
 initial_state(N, List)  :- 
     length(AuxList, N),
@@ -87,7 +87,9 @@ initial_state(N, List)  :-
     maplist(=(empty), AuxList),
     maplist(=(AuxList), List).
 
-% predicate to display the game state
+%_______________________________________________________
+
+% Predicate to display the game state
 % display_game(+GameState) 
 display_game(GameState):-
     length(GameState, Len),

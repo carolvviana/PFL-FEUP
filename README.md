@@ -1,6 +1,8 @@
 # Six Making - Grupo 5
 
 ## Topic and Group
+
+The game that we developed is called Six MaKING, a board game where the goal is to stack pieces so that you form a tower of 6 pieces.
 - up202108802 - Carolina Teixeira Lopes Couto Viana - 50%
 - up202108681 - Sérgio André Correia Peixoto - 50%
 
@@ -10,12 +12,16 @@
 
 To install the game, you need to download and extract the content of the folder PFL_T1_T06_Six Making_5.zip.
 Inside the src directory, consult the file main.pl and run the predicate play/0 to start the game.
+```
+?- consult(./main.pl).
+?- play.
+```
 
 ---------------------------
 
 ## Description of the game
 
-Six MaKING is a game for 2 players, played on a 5x5 (or 4x4) board. 
+Six MaKING is a game for 2 players, played on a 5x5 (or 4x4) board. For this project, however, we allow the user to choose the size of the board.
 
 Each player alternate turns playing. When it is your turn you can:
 
@@ -34,18 +40,18 @@ If you only choose to move a part of a tower, the disks move as the original tow
 
 You cannot undo the opponents move.
 
-The game ends when the first tower consisting of six or more disks (King) is built. The player who has its color on top is the winner. There are no draws in this game.
+The game ends when the first tower consisting of six disks (King) is built. The player who made the move that created the tower is the winner, despite of the piece on top. There are no draws in this game.
 
 ---
 
-### Official Rules
-  [Six MaKing](http://www.boardspace.net/sixmaking/english/Six-MaKING-rules-Eng-Ger-Fra-Ro-Hu.pdf)
+## Official Rules
+  The official rule book for [Six MaKING](http://www.boardspace.net/sixmaking/english/Six-MaKING-rules-Eng-Ger-Fra-Ro-Hu.pdf).
 
 ---
 
-### Game Logic
+## Game Logic
 
-#### Internal Game State Representation
+### Internal Game State Representation
 
 The Game State is composed of two parts: the Board and the Player currently taking turn playing.
 
@@ -57,32 +63,56 @@ The Game State is composed of two parts: the Board and the Player currently taki
 
   In this game, there are no captured piece, and both players can move all pieces, so that information didn't need to be represented.
 
-    Initial Board Example
+  #### Initial Board Example
+  ```
+  [[empty, empty, empty ,empty, empty],
+    [empty, empty, empty ,empty, empty],
+    [empty, empty, empty ,empty, empty],
+    [empty, empty, empty ,empty, empty],
+    [empty, empty, empty ,empty, empty]]
+  ```
   
-    ![Alt text](./images/image.png)
+  ![Alt text](./images/image.png)
 
-    Intermediate Board Example
+  #### Intermediate Board Example
+  ```
+  [[empty, [1,a], empty ,empty, empty],
+    [empty, empty, [2,a,2] ,empty, empty],
+    [[3,a,b,3], empty, [1,1] ,empty, [1,a]],
+    [empty, [3,1,b,c], empty ,empty, empty],
+    [empty, empty, empty ,[1,1], empty]]
+  ```
 
-    ![Alt text](./images/image2.png)
+  ![Alt text](./images/image2.png)
 
-    Final Board Example
+  #### Final Board Example
+  ```
+  [[empty, [1,a], empty ,empty, empty],
+    [empty, empty, [2,a,2] ,empty, [6,1,2,c,d,e,6]],
+    [[3,a,b,3], empty, [1,1] ,empty, [2,a,b]],
+    [empty, [3,1,b,c], empty ,empty, empty],
+    [empty, empty, empty ,[1,1], empty]]
+  ```
 
-    ![Alt text](./images/image3.png)
+  ![Alt text](./images/image3.png)
 
-#### Game State Visualization
+
+> NOTE: The code snippets and printed boards are not an exact match, but mere and unrelated examples.
+
+### Game State Visualization
 
 The game visualization and interaction as separated into different modules: `play.pl` and `board.pl`
 
 * #### play.pl
   This module is responsible for handling aspects such as showing menus and validating menu inputs
 
-  `display_menu` - Shows the main menu of the game
+  `display_menu` - Shows the main menu of the game.
 
   ![Alt text](images/image4.png)
 
-  `first_menu_input(+Input)` - Validates the input of the main menu and calls the chosen menu
+  `first_menu_input(+Input)` - Validates the input of the main menu and calls the chosen menu.
 
-  `play_menu` - Shows the play menu of the game where the user can select the game mode
+  `play_menu` - Shows the play menu of the game where the user can select the game mode.
 
   ![Alt text](./images/image5.png)
   
@@ -90,51 +120,90 @@ The game visualization and interaction as separated into different modules: `pla
   This pattern repeats for the other menus of the game where its needed to select the size of the board of the game or the difficulty of the AI.
 
   The predicates used for these menus are:
-  - `second_menu_input(+Input)` - Validates the input of the play menu and allows the user to choose the difficulty of the game
-  - ```board_size_menu(+TypeOfGame)``` and ```valid_board_size_input(+Input) ```
+  - `second_menu_input(+Input)` - Validates the input of the play menu and allows the user to choose the difficulty of the game.
+  - `board_size_menu(+TypeOfGame)` and `valid_board_size_input(+Input) `
 
   The last predicate called is `game_mode(+TypeOfGame, +SizeOfBoard)` that displays the initial state of the game and starts the game cycle.
-  
+
 * #### board.pl
 
   This module is responsible for drawing the board and the pieces of the game.
 
-  `display_game(+Board)` - Draws the board of the game
+  `display_game(+GameState)` - Draws the board of the game.
 
-  `initial_state(+Size, -GameState)` - Creates the initial state of the game given the size N of the board
+  `initial_state(+Size, -GameState)` - Creates the initial state of the game given the size N of the board. This initial state consists of an empty board, as mentioned.
 
-  `p_m(+Matrix, +N, +M)` - Lower level predicate used by display_game to print the board matrix with the coordinates of the board
+  `p_m(+Matrix, +N, +M)` - Lower level predicate used by display_game to print the board matrix with the coordinates of the board.
 
-#### Move Validation and Execution
-  
-  During the game, the user has the option to choose two types of moves: `place` and `move`. Because of this we had to adapt the predicates to account for this, so there are two lower level predicates responsible for placing and moving pieces on the board:
+### Move Validation and Execution
 
-  * `add_new_piece(+Board, +X, +Y, +Piece, -NewBoard)` - Which takes a piece and the coordinates where you want it to be and places it on the board, returning the new board
-      * The predicate checks if the desired coordinates are empty (validation) and, if so, places the piece.
+```
+move(GameState, ai-2, NewGameState):-
+    write('\n\nThinking.........\n'),
+    choose_move(GameState, ai, 2,[Type | Move]),
+    move_type(Type, Move, GameState, NewGameState).
 
-  * `move_piece(+Board, +X1, +Y1, +X2, +Y2, +N, -NewBoard)` - Which takes the coordinates of the piece to be moved (X1,Y1) and the coordinates of where you want it to move (X2,Y2). It also has an argument to specify the number of pieces to be moved (N), if the piece has a height of more than 1. It returns the new board with the moved piece.
+move(GameState, ai1-2, NewGameState):-
+    write('\n\nThinking.........\n'),
+    choose_move(GameState, ai, 2,[Type | Move]),
+    move_type(Type, Move, GameState, NewGameState).
 
-  But before these predicates are called, the user input is validated by the following predicates:
+move(GameState, ai2-2, NewGameState):-
+    write('\n\nThinking.........\n'),
+    choose_move(GameState, ai, 2,[Type | Move]),
+    move_type(Type, Move, GameState, NewGameState).
 
-  * `valid_coords(+Board, +X, +Y, +N, -Result)` - Which takes the height of the piece as an argument and returns the possible coordinates of the board where the piece can be moved to. This result list will be used to validate if a move if valid or not.
+move(GameState, Player, NewGameState):-
+    choose_play(GameState, Option, Player),
+    single_play(Option, GameState, Player, NewGameState).
+```
 
-  * `get_piece(+Board, +X, +Y, ?Piece)`
-     - To move a piece: ensure that the piece is not moved to an empty square on the board.
-     - To place a new piece: verify if a `place` move is possible on those coordinates by giving the piece empty as an argument
+  The predicate that is used to validate and execute a complete move is called `move(+GameState, +Player, -NewGameState)`. Because of the complexity of our game, one move depends on various factors, therefore we chose to provide the Player as the argument, instead of the explicit move. Then, depending on the player, the move will be executed in different ways.
+
+  If the player is the **regular user or AI Level 1**, the predicate will start by allowing the user to choose which move he wants to do: either place a new piece or move an existing piece.
+
+  This is done in the `choose_play(+GameState, -Option, +Player) ` predicate.
+  * If the player is the user, it asks and validates its input.
+  * If the player is AI Level 1 and there are no pieces on the board, it chooses to place a new piece necessarily.
+  * If the player is AI Level 1 and there are pieces on the board, it chooses randomly to either place a piece or move one.
+
+Then, the move is executed in the ` single_play(+Option, +GameState, +Player, -NewGameState)` predicate. The predicate either:
+  * Calls `new_piece_play(+Board, +Player, -NewBoard)` predicate, to place a new piece.
+  * Calls `move_piece_play(+Board, +Player, -NewBoard)` predicate, to move an existing piece.
+
+Again, if the player is a user, everything is done by asking for inputs and validating them. If it is AI Level 1, everything is chosen at random.
+
+  If the player is the **AI Level 2**, the predicate will start by calling `choose_move(+GameState,+Player,+Level,-Move)` predicate, to choose a specific move according to our algorithm, as it will be explained next.
+  Then, it calls the `move_type(+Type, +Move, +GameState, -NewGameState)` predicate, to actually execute the move, meaning either place a new piece or move an existing one.
+
+Ultimately, to add a new piece the predicate that is called is `add_new_piece(+Board, +X, +Y, +Piece, -NewBoard)` and to move a piece ` move_piece(+Board, +X1, +Y1, +X2, +Y2, +N, -NewBoard)`. These are lower level predicates, meaning they interact directly with the GameState, altering it. Before calling them, lots of verifications and validations happen. 
 
 
-  
-  The above predicates are the "core" predicates that are responsible for, ultimately, moving the pieces. However, depending on which game mode we are on, the way the move is decided varies.
+This predicate is a part of one of our most important predicates: the `game_cycle(+GameState-+Player, +History-+Index)` predicate.
+```
+game_cycle(GameState-Player, _History-_Index):-
+    game_over(GameState-Player, Winner), !,
+    congratulate(Winner).
 
-  AI Level 2 player uses the following predicate:
+game_cycle(GameState-Player, History-Index):-
+    repeat,
+    move(GameState, Player, NewGameState),
+    check_history(History-Index, NewGameState, NewHistory-NewIndex),
+    write('\n------- CURRENT BOARD -------\n'),
+    next_player(Player, NewPlayer),
+    display_game(NewGameState), !,
+    write_player_turn(NewPlayer),
+    game_cycle(NewGameState-NewPlayer, NewHistory-NewIndex).
+```
 
-  * `move(+GameState, +Move, -NewGameState)` - Which takes the current game state, the move to be made and returns the new game state.
+This is the predicate that makes the whole game work.
 
-  The other players (Human and AI) use the following predicate:
-  
-  * `single_play(+Option, +GameState, +Player, -NewGameState)` - Which takes the option chose by the user, or the option chosen randomly by the AI player on Level 1 and either places a piece or moves a piece, returning the new game state.
+It starts by, as described above, letting the Player make a move (`move/3`). Then, it calls the ` check_history(+History-+Index, +GameState, -NewHistory-+NewIndex)` predicate. As suggested by our professor, and to implement the rule that imposes that a player cannot undo a previous move, we decided to implement a History of GameStates. So, after a certain move, we check that our current GameState is not equal to the GameState after the other player's turn.
 
-#### List of Valid Moves
+After that validaion, we simply display the board, change turns and "start again".
+
+
+### List of Valid Moves
 
   Due to the nature of game, any player can move any piece on the board as long as it is a valid move or place any piece on the board as long as the square is empty. Because of this, we didn´t need to pass the player as an argument to the predicate as there is no restriction on the moves that can be made (player based restrictions at least):
 
@@ -144,7 +213,11 @@ The game visualization and interaction as separated into different modules: `pla
 
   Each element in the return list represents a move that can be made and is in the format `[Type, Action]` where **Type** is either `place` or `move`, **Action** has the initial and final coordinates of the move in the case **Type** is `move` or the coordinates of the square to place the piece and the piece itself in the case **Type** is `place`.
 
-#### End of Game
+> Note: For the other types of players on the game (Regular User and AI Level 1), there is no predicate that immediately returns all valid moves. This is because a valid move, as previously mentioned, depends on many complex factors and, for a better user experience, we opted by allowing the user to incrementaly choose what steps he wanted to take. He could choose: add a new piece or move one; where to add/move; how many disks to move; and more. The various options are validated along the way. If we had opted for giving it all possibilities of moves, the list would be endless and impractical. 
+
+> An alternative we found was the `valid_coords(+Board, +X, +Y, +N, -Result)` predicate. In case the user chooses to move a piece, the predicate returns exactly all the possibilities to where it can be moved. 
+
+### End of Game
 
   Checking whether the game has ended or not is done by the following predicate:
 
@@ -152,11 +225,11 @@ The game visualization and interaction as separated into different modules: `pla
 
   This check is done for every cycle in the game loop, so the game ends as soon as a player makes a move that results in a tower with a height of 6 or greater.
 
-#### Game State Evaluation
+### Game State Evaluation
 
   In order for the AI Level 2 to better choose a move to make, we had to create a predicate that would evaluate the current state of the game and return a value that would represent how good is that play. This predicate is the following:
 
-  * `value(+Board, -Value)` - Which returns the value of the current board. To calculate the value we chose to use 3 different criteria in which we hope would give better choices. These are as such:
+  * `value(+GameState, +Player, -Value)` - Which returns the value of the current board. To calculate the value we chose to use 3 different criteria in which we hope would give better choices. These are as such:
 
     * **Height of the tallest tower on the board** - The taller the tower, the better that play was, in hopes that the AI would choose to build a taller tower, as this is the main objetive of the game. This has a weight of 60% in the final value.
 
@@ -164,38 +237,43 @@ The game visualization and interaction as separated into different modules: `pla
 
     * **Number of towers in the board** - In the same way as the previous criteria, the more towers there are in the board, the more options there are to reach higher towers in later moves. This has a weight of 10% in the final value.
   
-  Again, this predicate was modified to not include the player as an argument as there is no restriction on the moves that can be made.
+  Although the predicate includes an argument for Player, it is never used, as the player has no restrictions on which moves can be made. It is solely used for the purpose of deciding which move the AI Level 2 Player chooses, as mentioned. The predicate is used on the minimax algorithm.
 
-#### Computer Plays
+### Computer Plays
 
   The computer has 2 distinct levels it can play on:
   
-  * **Level 1** - The computer will choose a random move from the list of valid moves and execute that move, in the same way a human would choose the type of move and then what to do in that same type of play.
+  * **Level 1** - The computer will choose random options every time it is asked for input. These options are continuously validated and, if needed, constrainted, to make sure the game flows without errors. If the Computer eventually chooses to move a piece, it is provided with a list of various coordinates to move and, again, chooses randomly from that list.
 
-  * **Level 2** - The computer will choose the move that will result in the best value of the board. This is done using a greedy algorithm that will search for the best move two moves ahead of the current state of the game, taking into consideration that the next play will be from the opponent and that the opponent will choose the best play for him (minimax algorithm). Theses decisions are made using the `value/2` predicate described above.
+  * **Level 2** - The computer will choose the move that will result in the best value of the board. This is done using a greedy algorithm that will search for the best move two moves ahead of the current state of the game, taking into consideration that the next play will be from the opponent and that the opponent will choose the best play for him (minimax algorithm). Theses decisions are made using the `value/3` predicate described above.
+
+    In this case, the best move is returned using the predicate `choose_move(+GameState,+Player,+Level,-Move) `.
 
 ---
 
-### Conclusions
+## Conclusions
 
-  The game Six MaKing was sucessfully implemented in SICStus Prolog 4.8. The game can be played in 4 different modes:
+  The game Six MaKing was sucessfully implemented in SICStus Prolog 4.8. The game can be played in 5 different modes:
 
   * **Player vs Player**
   * **Player vs Computer (Level 1)**
   * **Player vs Computer (Level 2)**
   * **Computer (Level 1) vs Computer (Level 1)**
+  * **Computer (Level 2) vs Computer (Level 2)**
 
   The size of the board can also be changed to whatever size wanted.
 
   One of the main challenges of this project was adapting our way of thinking outside of Object Oriented Programming and into Logic Programming. This was especially hard in the earlier stages when we had to think of ways to represent the game state and the pieces on the board
 
-  One aspect that could be improved with more time would be the code itself. As this is our first time working with Prolog, we had to learn the language as we went along, so there are some parts of the code that could be improved and made more efficient as well as more clean, readable and reusable.
+  One aspect that could be improved with more time would be the code itself. As this is our first time working with Prolog, we had to learn the language as we went along, so there are some parts of the code that could be improved and made more efficient as well as more clean, readable and reusable. Besides this, when we started developing the program, we had little idea of the best practices and the requirements for the predicates so a lot of refactoring had to be done and the end result was still not perfect
 
-  Other aspect would be improving the AI Level 2. As this is dependent on the `value/2` predicate formula we chose, we would need more time to discover patterns in this AI and improve it to make better choices.
+  Other aspect would be improving the AI Level 2. As this is dependent on the `value/3` predicate formula we chose, we would need more time to discover patterns in this AI and improve it to make better choices.
+
+  Despite this, the game works without mistakes and we are very proud of the work we have done. We managed to learn a lot, overcome mistakes and problems and are really happy about the finished project.
 
 ---
 
-### Bibliography
+## Bibliography
 
   * [Sicstus Prolog](https://sicstus.sics.se/documentation.html)
   * [SWI Prolog](https://www.swi-prolog.org/)

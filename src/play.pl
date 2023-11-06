@@ -1,6 +1,5 @@
 :- consult('game_cycle.pl').
 
-
 %_________________________________________
 
 % Valid difficulty options for the second menu
@@ -12,14 +11,13 @@ valid_difficulty_input(2).
 % Valid board size options for the third menu
 valid_board_size_input(N) :- N >= 2.
 
+%_________________________________________
+
 % Predicates that represent valid menu options 
 first_menu_input(1) :-
     play_menu.
 
 first_menu_input(2) :-
-    write('\n rules'), nl.
-
-first_menu_input(3) :-
     write('\nSee you later!\n').
 
 %_________________________________________
@@ -44,7 +42,6 @@ second_menu_input(2) :-
     Answer is 1 + Input,
     board_size_menu(Answer).
 
-
 % AI vs. AI
 second_menu_input(3) :-
     write('Choose the difficulty: \n'),
@@ -59,7 +56,6 @@ second_menu_input(3) :-
     valid_difficulty_input(Input),
     Answer is 3 + Input,
     board_size_menu(Answer).
-    %write('\nSee you later!\n').
 
 second_menu_input(4) :-
     play.
@@ -70,8 +66,7 @@ second_menu_input(4) :-
 display_menu :-
     write('\nSIX-MAKING\n'),
     write('\n1. Play Game\n'),
-    write('2. Rules\n'),
-    write('3. Exit\n'),
+    write('2. Exit\n'),
 
     write('\nPlease enter your choice: \n'),
 
@@ -83,7 +78,6 @@ display_menu :-
 %_________________________________________
 
 % Predicate that represents the valid menu options for the second menu - Select game mode
-
 play_menu :-
     write('\n1. Player vs. Player\n'),
     write('2. Player vs. AI\n'),
@@ -117,6 +111,7 @@ board_size_menu(TypeOfGame) :-
 
 %_________________________________________
 
+% Predicate that generates initial empty history
 initial_history([[],[]]-2).
 
 % Predicate that represents the valid menu options for the fourth menu - Select difficulty
@@ -151,4 +146,12 @@ game_mode(4, SizeOfBoard) :-
     write('                     Initial Board                     \n'),
     p_m(InitialGameState, SizeOfBoard), nl,
     game_cycle(InitialGameState-(ai1-1), InitialHistory-Index).
+
+game_mode(5, SizeOfBoard) :- 
+    initial_state(SizeOfBoard, InitialGameState),
+    initial_history(InitialHistory-Index),
+    write('\n\n----------------------LET\'S BEGIN--------------------\n\n'),
+    write('                     Initial Board                     \n'),
+    p_m(InitialGameState, SizeOfBoard), nl,
+    game_cycle(InitialGameState-(ai1-2), InitialHistory-Index).
 
